@@ -1,0 +1,36 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{4EA1C875-985B-42C5-BE3A-AF101234BA16}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="SciLexer.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="SciLexer">
+        <MSBuild Projects="SciLexer.cbproj"/>
+    </Target>
+    <Target Name="SciLexer:Clean">
+        <MSBuild Projects="SciLexer.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SciLexer:Make">
+        <MSBuild Projects="SciLexer.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="SciLexer"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="SciLexer:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="SciLexer:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
