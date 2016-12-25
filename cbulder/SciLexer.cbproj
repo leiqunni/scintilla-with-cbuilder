@@ -4,9 +4,9 @@
         <ProjectVersion>18.2</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>1</TargetedPlatforms>
+        <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -39,18 +39,20 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <VerInfo_Locale>1041</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=Neil Hodgson neilh@scintilla.org;FileDescription=Scintilla.DLL - a Source Editing Component;FileVersion=3.7.1.0;InternalName=Scintilla;LegalCopyright=Copyright 1998-2017 by Neil Hodgson;LegalTrademarks=;OriginalFilename=Scintilla.DLL;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=Scintilla;ProductVersion=3.7.1.0;Comments=</VerInfo_Keys>
         <ProjectType>VCppStyleDll</ProjectType>
-        <_TCHARMapping>char</_TCHARMapping>
-        <ILINK_LibraryPath>..\..\include\;..\..\lexers\;..\..\lexlib\;..\..\src\;..\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <_TCHARMapping>wchar_t</_TCHARMapping>
+        <ILINK_LibraryPath>..\include\;..\lexers\;..\lexlib\;..\src\;..\win32\;..\..\include\;..\..\lexers\;..\..\lexlib\;..\..\src\;..\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <SanitizedProjectName>SciLexer</SanitizedProjectName>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <RunBCCOutOfProcess>true</RunBCCOutOfProcess>
         <ILINK_GenerateImportLibrary>true</ILINK_GenerateImportLibrary>
-        <IncludePath>..\..\include\;..\..\lexers\;..\..\lexlib\;..\..\src\;..\;$(IncludePath)</IncludePath>
+        <IncludePath>..\include\;..\lexers\;..\lexlib\;..\src\;..\win32\;..\..\include\;..\..\lexers\;..\..\lexlib\;..\..\src\;..\;$(IncludePath)</IncludePath>
         <Multithreaded>true</Multithreaded>
         <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
-        <IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
-        <FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
+        <IntermediateOutputDir>..\bin\$(Platform)\$(Config)</IntermediateOutputDir>
+        <FinalOutputDir>..\bin\$(Platform)\$(Config)</FinalOutputDir>
         <BCC_wpar>false</BCC_wpar>
         <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
         <BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
@@ -73,6 +75,11 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <BT_BuildType>Debug</BT_BuildType>
         <PackageImports>adortl;appanalytics;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindengine;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;emsclient;emsclientfiredac;emsedge;emshosting;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACCommonODBC;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMongoDBDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;FMXTee;FmxTeeUI;ibmonitor;ibxbindings;ibxpress;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;Intraweb;RESTBackendComponents;RESTComponents;rtl;soapmidas;soaprtl;soapserver;Tee;TeeDB;TeeUI;tethering;vcl;vclactnband;vcldb;vcldsnap;vclFireDAC;vclib;vclie;vclimg;VCLRESTComponents;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
@@ -98,626 +105,626 @@
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_DLL>true</VerInfo_DLL>
+        <VerInfo_MajorVer>3</VerInfo_MajorVer>
+        <VerInfo_MinorVer>7</VerInfo_MinorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <Manifest_File>(なし)</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <Defines>NDEBUG;$(Defines)</Defines>
         <TASM_Debugging>None</TASM_Debugging>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="..\..\include\ILexer.h">
+        <None Include="..\include\ILexer.h">
+            <BuildOrder>198</BuildOrder>
+        </None>
+        <None Include="..\include\Platform.h">
             <BuildOrder>199</BuildOrder>
         </None>
-        <None Include="..\..\include\Platform.h">
+        <None Include="..\include\SciLexer.h">
             <BuildOrder>200</BuildOrder>
         </None>
-        <None Include="..\..\include\SciLexer.h">
+        <None Include="..\include\Scintilla.h">
             <BuildOrder>201</BuildOrder>
         </None>
-        <None Include="..\..\include\Scintilla.h">
-            <BuildOrder>202</BuildOrder>
+        <None Include="..\include\ScintillaWidget.h">
+            <BuildOrder>203</BuildOrder>
         </None>
-        <None Include="..\..\include\Scintilla.iface"/>
-        <None Include="..\..\include\ScintillaWidget.h">
+        <None Include="..\include\Sci_Position.h">
             <BuildOrder>204</BuildOrder>
         </None>
-        <None Include="..\..\include\Sci_Position.h">
-            <BuildOrder>205</BuildOrder>
-        </None>
-        <CppCompile Include="..\..\lexers\LexA68k.cxx">
+        <CppCompile Include="..\lexers\LexA68k.cxx">
+            <BuildOrder>94</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\lexers\LexAbaqus.cxx">
             <BuildOrder>95</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexAbaqus.cxx">
+        <CppCompile Include="..\lexers\LexAda.cxx">
             <BuildOrder>96</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexAda.cxx">
+        <CppCompile Include="..\lexers\LexAPDL.cxx">
             <BuildOrder>97</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexAPDL.cxx">
+        <CppCompile Include="..\lexers\LexAsm.cxx">
             <BuildOrder>98</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexAsm.cxx">
+        <CppCompile Include="..\lexers\LexAsn1.cxx">
             <BuildOrder>99</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexAsn1.cxx">
+        <CppCompile Include="..\lexers\LexASY.cxx">
             <BuildOrder>100</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexASY.cxx">
+        <CppCompile Include="..\lexers\LexAU3.cxx">
             <BuildOrder>101</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexAU3.cxx">
+        <CppCompile Include="..\lexers\LexAVE.cxx">
             <BuildOrder>102</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexAVE.cxx">
+        <CppCompile Include="..\lexers\LexAVS.cxx">
             <BuildOrder>103</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexAVS.cxx">
+        <CppCompile Include="..\lexers\LexBaan.cxx">
             <BuildOrder>104</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexBaan.cxx">
+        <CppCompile Include="..\lexers\LexBash.cxx">
             <BuildOrder>105</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexBash.cxx">
+        <CppCompile Include="..\lexers\LexBasic.cxx">
             <BuildOrder>106</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexBasic.cxx">
+        <CppCompile Include="..\lexers\LexBatch.cxx">
             <BuildOrder>107</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexBatch.cxx">
+        <CppCompile Include="..\lexers\LexBibTeX.cxx">
             <BuildOrder>108</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexBibTeX.cxx">
+        <CppCompile Include="..\lexers\LexBullant.cxx">
             <BuildOrder>109</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexBullant.cxx">
+        <CppCompile Include="..\lexers\LexCaml.cxx">
             <BuildOrder>110</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexCaml.cxx">
+        <CppCompile Include="..\lexers\LexCLW.cxx">
             <BuildOrder>111</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexCLW.cxx">
+        <CppCompile Include="..\lexers\LexCmake.cxx">
             <BuildOrder>112</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexCmake.cxx">
+        <CppCompile Include="..\lexers\LexCOBOL.cxx">
             <BuildOrder>113</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexCOBOL.cxx">
+        <CppCompile Include="..\lexers\LexCoffeeScript.cxx">
             <BuildOrder>114</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexCoffeeScript.cxx">
+        <CppCompile Include="..\lexers\LexConf.cxx">
             <BuildOrder>115</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexConf.cxx">
+        <CppCompile Include="..\lexers\LexCPP.cxx">
             <BuildOrder>116</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexCPP.cxx">
+        <CppCompile Include="..\lexers\LexCrontab.cxx">
             <BuildOrder>117</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexCrontab.cxx">
+        <CppCompile Include="..\lexers\LexCsound.cxx">
             <BuildOrder>118</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexCsound.cxx">
+        <CppCompile Include="..\lexers\LexCSS.cxx">
             <BuildOrder>119</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexCSS.cxx">
+        <CppCompile Include="..\lexers\LexD.cxx">
             <BuildOrder>120</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexD.cxx">
+        <CppCompile Include="..\lexers\LexDiff.cxx">
             <BuildOrder>121</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexDiff.cxx">
+        <CppCompile Include="..\lexers\LexDMAP.cxx">
             <BuildOrder>122</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexDMAP.cxx">
+        <CppCompile Include="..\lexers\LexDMIS.cxx">
             <BuildOrder>123</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexDMIS.cxx">
+        <CppCompile Include="..\lexers\LexECL.cxx">
             <BuildOrder>124</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexECL.cxx">
+        <CppCompile Include="..\lexers\LexEDIFACT.cxx">
             <BuildOrder>125</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexEDIFACT.cxx">
+        <CppCompile Include="..\lexers\LexEiffel.cxx">
             <BuildOrder>126</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexEiffel.cxx">
+        <CppCompile Include="..\lexers\LexErlang.cxx">
             <BuildOrder>127</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexErlang.cxx">
+        <CppCompile Include="..\lexers\LexErrorList.cxx">
             <BuildOrder>128</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexErrorList.cxx">
+        <CppCompile Include="..\lexers\LexEScript.cxx">
             <BuildOrder>129</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexEScript.cxx">
+        <CppCompile Include="..\lexers\LexFlagship.cxx">
             <BuildOrder>130</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexFlagship.cxx">
+        <CppCompile Include="..\lexers\LexForth.cxx">
             <BuildOrder>131</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexForth.cxx">
+        <CppCompile Include="..\lexers\LexFortran.cxx">
             <BuildOrder>132</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexFortran.cxx">
+        <CppCompile Include="..\lexers\LexGAP.cxx">
             <BuildOrder>133</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexGAP.cxx">
+        <CppCompile Include="..\lexers\LexGui4Cli.cxx">
             <BuildOrder>134</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexGui4Cli.cxx">
+        <CppCompile Include="..\lexers\LexHaskell.cxx">
             <BuildOrder>135</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexHaskell.cxx">
+        <CppCompile Include="..\lexers\LexHex.cxx">
             <BuildOrder>136</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexHex.cxx">
+        <CppCompile Include="..\lexers\LexHTML.cxx">
             <BuildOrder>137</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexHTML.cxx">
+        <CppCompile Include="..\lexers\LexInno.cxx">
             <BuildOrder>138</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexInno.cxx">
+        <CppCompile Include="..\lexers\LexJSON.cxx">
             <BuildOrder>139</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexJSON.cxx">
+        <CppCompile Include="..\lexers\LexKix.cxx">
             <BuildOrder>140</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexKix.cxx">
+        <CppCompile Include="..\lexers\LexKVIrc.cxx">
             <BuildOrder>141</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexKVIrc.cxx">
+        <CppCompile Include="..\lexers\LexLaTeX.cxx">
             <BuildOrder>142</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexLaTeX.cxx">
+        <CppCompile Include="..\lexers\LexLisp.cxx">
             <BuildOrder>143</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexLisp.cxx">
+        <CppCompile Include="..\lexers\LexLout.cxx">
             <BuildOrder>144</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexLout.cxx">
+        <CppCompile Include="..\lexers\LexLua.cxx">
             <BuildOrder>145</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexLua.cxx">
+        <CppCompile Include="..\lexers\LexMagik.cxx">
             <BuildOrder>146</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexMagik.cxx">
+        <CppCompile Include="..\lexers\LexMake.cxx">
             <BuildOrder>147</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexMake.cxx">
+        <CppCompile Include="..\lexers\LexMarkdown.cxx">
             <BuildOrder>148</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexMarkdown.cxx">
+        <CppCompile Include="..\lexers\LexMatlab.cxx">
             <BuildOrder>149</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexMatlab.cxx">
+        <CppCompile Include="..\lexers\LexMetapost.cxx">
             <BuildOrder>150</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexMetapost.cxx">
+        <CppCompile Include="..\lexers\LexMMIXAL.cxx">
             <BuildOrder>151</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexMMIXAL.cxx">
+        <CppCompile Include="..\lexers\LexModula.cxx">
             <BuildOrder>152</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexModula.cxx">
+        <CppCompile Include="..\lexers\LexMPT.cxx">
             <BuildOrder>153</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexMPT.cxx">
+        <CppCompile Include="..\lexers\LexMSSQL.cxx">
             <BuildOrder>154</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexMSSQL.cxx">
+        <CppCompile Include="..\lexers\LexMySQL.cxx">
             <BuildOrder>155</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexMySQL.cxx">
+        <CppCompile Include="..\lexers\LexNimrod.cxx">
             <BuildOrder>156</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexNimrod.cxx">
+        <CppCompile Include="..\lexers\LexNsis.cxx">
             <BuildOrder>157</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexNsis.cxx">
+        <CppCompile Include="..\lexers\LexNull.cxx">
             <BuildOrder>158</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexNull.cxx">
+        <CppCompile Include="..\lexers\LexOpal.cxx">
             <BuildOrder>159</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexOpal.cxx">
+        <CppCompile Include="..\lexers\LexOScript.cxx">
             <BuildOrder>160</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexOScript.cxx">
+        <CppCompile Include="..\lexers\LexPascal.cxx">
             <BuildOrder>161</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPascal.cxx">
+        <CppCompile Include="..\lexers\LexPB.cxx">
             <BuildOrder>162</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPB.cxx">
+        <CppCompile Include="..\lexers\LexPerl.cxx">
             <BuildOrder>163</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPerl.cxx">
+        <CppCompile Include="..\lexers\LexPLM.cxx">
             <BuildOrder>164</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPLM.cxx">
+        <CppCompile Include="..\lexers\LexPO.cxx">
             <BuildOrder>165</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPO.cxx">
+        <CppCompile Include="..\lexers\LexPOV.cxx">
             <BuildOrder>166</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPOV.cxx">
+        <CppCompile Include="..\lexers\LexPowerPro.cxx">
             <BuildOrder>167</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPowerPro.cxx">
+        <CppCompile Include="..\lexers\LexPowerShell.cxx">
             <BuildOrder>168</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPowerShell.cxx">
+        <CppCompile Include="..\lexers\LexProgress.cxx">
             <BuildOrder>169</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexProgress.cxx">
+        <CppCompile Include="..\lexers\LexProps.cxx">
             <BuildOrder>170</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexProps.cxx">
+        <CppCompile Include="..\lexers\LexPS.cxx">
             <BuildOrder>171</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPS.cxx">
+        <CppCompile Include="..\lexers\LexPython.cxx">
             <BuildOrder>172</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexPython.cxx">
+        <CppCompile Include="..\lexers\LexR.cxx">
             <BuildOrder>173</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexR.cxx">
+        <CppCompile Include="..\lexers\LexRebol.cxx">
             <BuildOrder>174</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexRebol.cxx">
+        <CppCompile Include="..\lexers\LexRegistry.cxx">
             <BuildOrder>175</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexRegistry.cxx">
+        <CppCompile Include="..\lexers\LexRuby.cxx">
             <BuildOrder>176</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexRuby.cxx">
+        <CppCompile Include="..\lexers\LexRust.cxx">
             <BuildOrder>177</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexRust.cxx">
+        <CppCompile Include="..\lexers\LexScriptol.cxx">
             <BuildOrder>178</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexScriptol.cxx">
+        <CppCompile Include="..\lexers\LexSmalltalk.cxx">
             <BuildOrder>179</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexSmalltalk.cxx">
+        <CppCompile Include="..\lexers\LexSML.cxx">
             <BuildOrder>180</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexSML.cxx">
+        <CppCompile Include="..\lexers\LexSorcus.cxx">
             <BuildOrder>181</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexSorcus.cxx">
+        <CppCompile Include="..\lexers\LexSpecman.cxx">
             <BuildOrder>182</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexSpecman.cxx">
+        <CppCompile Include="..\lexers\LexSpice.cxx">
             <BuildOrder>183</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexSpice.cxx">
+        <CppCompile Include="..\lexers\LexSQL.cxx">
             <BuildOrder>184</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexSQL.cxx">
+        <CppCompile Include="..\lexers\LexSTTXT.cxx">
             <BuildOrder>185</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexSTTXT.cxx">
+        <CppCompile Include="..\lexers\LexTACL.cxx">
             <BuildOrder>186</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexTACL.cxx">
+        <CppCompile Include="..\lexers\LexTADS3.cxx">
             <BuildOrder>187</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexTADS3.cxx">
+        <CppCompile Include="..\lexers\LexTAL.cxx">
             <BuildOrder>188</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexTAL.cxx">
+        <CppCompile Include="..\lexers\LexTCL.cxx">
             <BuildOrder>189</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexTCL.cxx">
+        <CppCompile Include="..\lexers\LexTCMD.cxx">
             <BuildOrder>190</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexTCMD.cxx">
+        <CppCompile Include="..\lexers\LexTeX.cxx">
             <BuildOrder>191</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexTeX.cxx">
+        <CppCompile Include="..\lexers\LexTxt2tags.cxx">
             <BuildOrder>192</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexTxt2tags.cxx">
+        <CppCompile Include="..\lexers\LexVB.cxx">
             <BuildOrder>193</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexVB.cxx">
+        <CppCompile Include="..\lexers\LexVerilog.cxx">
             <BuildOrder>194</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexVerilog.cxx">
+        <CppCompile Include="..\lexers\LexVHDL.cxx">
             <BuildOrder>195</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexVHDL.cxx">
+        <CppCompile Include="..\lexers\LexVisualProlog.cxx">
             <BuildOrder>196</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexVisualProlog.cxx">
+        <CppCompile Include="..\lexers\LexYAML.cxx">
             <BuildOrder>197</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\..\lexers\LexYAML.cxx">
-            <BuildOrder>198</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\lexlib\Accessor.cxx">
+        <CppCompile Include="..\lexlib\Accessor.cxx">
             <BuildOrder>69</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\Accessor.h">
+        <None Include="..\lexlib\Accessor.h">
             <BuildOrder>70</BuildOrder>
         </None>
-        <CppCompile Include="..\..\lexlib\CharacterCategory.cxx">
+        <CppCompile Include="..\lexlib\CharacterCategory.cxx">
             <BuildOrder>71</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\CharacterCategory.h">
+        <None Include="..\lexlib\CharacterCategory.h">
             <BuildOrder>72</BuildOrder>
         </None>
-        <CppCompile Include="..\..\lexlib\CharacterSet.cxx">
+        <CppCompile Include="..\lexlib\CharacterSet.cxx">
             <BuildOrder>73</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\CharacterSet.h">
+        <None Include="..\lexlib\CharacterSet.h">
             <BuildOrder>74</BuildOrder>
         </None>
-        <None Include="..\..\lexlib\LexAccessor.h">
+        <None Include="..\lexlib\LexAccessor.h">
             <BuildOrder>75</BuildOrder>
         </None>
-        <CppCompile Include="..\..\lexlib\LexerBase.cxx">
+        <CppCompile Include="..\lexlib\LexerBase.cxx">
             <BuildOrder>76</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\LexerBase.h">
+        <None Include="..\lexlib\LexerBase.h">
             <BuildOrder>77</BuildOrder>
         </None>
-        <CppCompile Include="..\..\lexlib\LexerModule.cxx">
+        <CppCompile Include="..\lexlib\LexerModule.cxx">
             <BuildOrder>78</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\LexerModule.h">
+        <None Include="..\lexlib\LexerModule.h">
             <BuildOrder>79</BuildOrder>
         </None>
-        <CppCompile Include="..\..\lexlib\LexerNoExceptions.cxx">
+        <CppCompile Include="..\lexlib\LexerNoExceptions.cxx">
             <BuildOrder>80</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\LexerNoExceptions.h">
+        <None Include="..\lexlib\LexerNoExceptions.h">
             <BuildOrder>81</BuildOrder>
         </None>
-        <CppCompile Include="..\..\lexlib\LexerSimple.cxx">
+        <CppCompile Include="..\lexlib\LexerSimple.cxx">
             <BuildOrder>82</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\LexerSimple.h">
+        <None Include="..\lexlib\LexerSimple.h">
             <BuildOrder>83</BuildOrder>
         </None>
-        <None Include="..\..\lexlib\OptionSet.h">
+        <None Include="..\lexlib\OptionSet.h">
             <BuildOrder>84</BuildOrder>
         </None>
-        <CppCompile Include="..\..\lexlib\PropSetSimple.cxx">
+        <CppCompile Include="..\lexlib\PropSetSimple.cxx">
             <BuildOrder>85</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\PropSetSimple.h">
+        <None Include="..\lexlib\PropSetSimple.h">
             <BuildOrder>86</BuildOrder>
         </None>
-        <None Include="..\..\lexlib\SparseState.h">
+        <None Include="..\lexlib\SparseState.h">
             <BuildOrder>87</BuildOrder>
         </None>
-        <None Include="..\..\lexlib\StringCopy.h">
+        <None Include="..\lexlib\StringCopy.h">
             <BuildOrder>88</BuildOrder>
         </None>
-        <CppCompile Include="..\..\lexlib\StyleContext.cxx">
+        <CppCompile Include="..\lexlib\StyleContext.cxx">
             <BuildOrder>89</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\StyleContext.h">
+        <None Include="..\lexlib\StyleContext.h">
             <BuildOrder>90</BuildOrder>
         </None>
-        <None Include="..\..\lexlib\SubStyles.h">
+        <None Include="..\lexlib\SubStyles.h">
             <BuildOrder>91</BuildOrder>
         </None>
-        <CppCompile Include="..\..\lexlib\WordList.cxx">
+        <CppCompile Include="..\lexlib\WordList.cxx">
             <BuildOrder>92</BuildOrder>
         </CppCompile>
-        <None Include="..\..\lexlib\WordList.h">
+        <None Include="..\lexlib\WordList.h">
             <BuildOrder>93</BuildOrder>
         </None>
-        <None Include="..\..\lexlib\__history"/>
-        <CppCompile Include="..\..\src\AutoComplete.cxx">
+        <CppCompile Include="..\src\AutoComplete.cxx">
             <BuildOrder>6</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\AutoComplete.h">
+        <None Include="..\src\AutoComplete.h">
             <BuildOrder>7</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\CallTip.cxx">
+        <CppCompile Include="..\src\CallTip.cxx">
             <BuildOrder>8</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\CallTip.h">
+        <None Include="..\src\CallTip.h">
             <BuildOrder>9</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\CaseConvert.cxx">
+        <CppCompile Include="..\src\CaseConvert.cxx">
             <BuildOrder>10</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\CaseConvert.h">
+        <None Include="..\src\CaseConvert.h">
             <BuildOrder>11</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\CaseFolder.cxx">
+        <CppCompile Include="..\src\CaseFolder.cxx">
             <BuildOrder>12</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\CaseFolder.h">
+        <None Include="..\src\CaseFolder.h">
             <BuildOrder>13</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\Catalogue.cxx">
+        <CppCompile Include="..\src\Catalogue.cxx">
             <BuildOrder>14</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\Catalogue.h">
+        <None Include="..\src\Catalogue.h">
             <BuildOrder>15</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\CellBuffer.cxx">
+        <CppCompile Include="..\src\CellBuffer.cxx">
             <BuildOrder>16</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\CellBuffer.h">
+        <None Include="..\src\CellBuffer.h">
             <BuildOrder>17</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\CharClassify.cxx">
+        <CppCompile Include="..\src\CharClassify.cxx">
             <BuildOrder>18</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\CharClassify.h">
+        <None Include="..\src\CharClassify.h">
             <BuildOrder>19</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\ContractionState.cxx">
+        <CppCompile Include="..\src\ContractionState.cxx">
             <BuildOrder>20</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\ContractionState.h">
+        <None Include="..\src\ContractionState.h">
             <BuildOrder>21</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\Decoration.cxx">
+        <CppCompile Include="..\src\Decoration.cxx">
             <BuildOrder>22</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\Decoration.h">
+        <None Include="..\src\Decoration.h">
             <BuildOrder>23</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\Document.cxx">
+        <CppCompile Include="..\src\Document.cxx">
             <BuildOrder>24</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\Document.h">
+        <None Include="..\src\Document.h">
             <BuildOrder>25</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\EditModel.cxx">
+        <CppCompile Include="..\src\EditModel.cxx">
             <BuildOrder>26</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\EditModel.h">
+        <None Include="..\src\EditModel.h">
             <BuildOrder>27</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\Editor.cxx">
+        <CppCompile Include="..\src\Editor.cxx">
             <BuildOrder>28</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\Editor.h">
+        <None Include="..\src\Editor.h">
             <BuildOrder>29</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\EditView.cxx">
+        <CppCompile Include="..\src\EditView.cxx">
             <BuildOrder>30</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\EditView.h">
+        <None Include="..\src\EditView.h">
             <BuildOrder>31</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\ExternalLexer.cxx">
+        <CppCompile Include="..\src\ExternalLexer.cxx">
             <BuildOrder>32</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\ExternalLexer.h">
+        <None Include="..\src\ExternalLexer.h">
             <BuildOrder>33</BuildOrder>
         </None>
-        <None Include="..\..\src\FontQuality.h">
+        <None Include="..\src\FontQuality.h">
             <BuildOrder>34</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\Indicator.cxx">
+        <CppCompile Include="..\src\Indicator.cxx">
             <BuildOrder>35</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\Indicator.h">
+        <None Include="..\src\Indicator.h">
             <BuildOrder>36</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\KeyMap.cxx">
+        <CppCompile Include="..\src\KeyMap.cxx">
             <BuildOrder>37</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\KeyMap.h">
+        <None Include="..\src\KeyMap.h">
             <BuildOrder>38</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\LineMarker.cxx">
+        <CppCompile Include="..\src\LineMarker.cxx">
             <BuildOrder>39</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\LineMarker.h">
+        <None Include="..\src\LineMarker.h">
             <BuildOrder>40</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\MarginView.cxx">
+        <CppCompile Include="..\src\MarginView.cxx">
             <BuildOrder>41</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\MarginView.h">
+        <None Include="..\src\MarginView.h">
             <BuildOrder>42</BuildOrder>
         </None>
-        <None Include="..\..\src\Partitioning.h">
+        <None Include="..\src\Partitioning.h">
             <BuildOrder>43</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\PerLine.cxx">
+        <CppCompile Include="..\src\PerLine.cxx">
             <BuildOrder>44</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\PerLine.h">
+        <None Include="..\src\PerLine.h">
             <BuildOrder>45</BuildOrder>
         </None>
-        <None Include="..\..\src\Position.h">
+        <None Include="..\src\Position.h">
             <BuildOrder>46</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\PositionCache.cxx">
+        <CppCompile Include="..\src\PositionCache.cxx">
             <BuildOrder>47</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\PositionCache.h">
+        <None Include="..\src\PositionCache.h">
             <BuildOrder>48</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\RESearch.cxx">
+        <CppCompile Include="..\src\RESearch.cxx">
             <BuildOrder>49</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\RESearch.h">
+        <None Include="..\src\RESearch.h">
             <BuildOrder>50</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\RunStyles.cxx">
+        <CppCompile Include="..\src\RunStyles.cxx">
             <BuildOrder>51</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\RunStyles.h">
+        <None Include="..\src\RunStyles.h">
             <BuildOrder>52</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\ScintillaBase.cxx">
+        <CppCompile Include="..\src\ScintillaBase.cxx">
             <BuildOrder>53</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\ScintillaBase.h">
+        <None Include="..\src\ScintillaBase.h">
             <BuildOrder>54</BuildOrder>
         </None>
-        <None Include="..\..\src\SciTE.properties"/>
-        <CppCompile Include="..\..\src\Selection.cxx">
+        <CppCompile Include="..\src\Selection.cxx">
             <BuildOrder>56</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\Selection.h">
+        <None Include="..\src\Selection.h">
             <BuildOrder>57</BuildOrder>
         </None>
-        <None Include="..\..\src\SparseVector.h">
+        <None Include="..\src\SparseVector.h">
             <BuildOrder>58</BuildOrder>
         </None>
-        <None Include="..\..\src\SplitVector.h">
+        <None Include="..\src\SplitVector.h">
             <BuildOrder>59</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\Style.cxx">
+        <CppCompile Include="..\src\Style.cxx">
             <BuildOrder>60</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\Style.h">
+        <None Include="..\src\Style.h">
             <BuildOrder>61</BuildOrder>
         </None>
-        <None Include="..\..\src\UnicodeFromUTF8.h">
+        <None Include="..\src\UnicodeFromUTF8.h">
             <BuildOrder>62</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\UniConversion.cxx">
+        <CppCompile Include="..\src\UniConversion.cxx">
             <BuildOrder>63</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\UniConversion.h">
+        <None Include="..\src\UniConversion.h">
             <BuildOrder>64</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\ViewStyle.cxx">
+        <CppCompile Include="..\src\ViewStyle.cxx">
             <BuildOrder>65</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\ViewStyle.h">
+        <None Include="..\src\ViewStyle.h">
             <BuildOrder>66</BuildOrder>
         </None>
-        <CppCompile Include="..\..\src\XPM.cxx">
+        <CppCompile Include="..\src\XPM.cxx">
             <BuildOrder>67</BuildOrder>
         </CppCompile>
-        <None Include="..\..\src\XPM.h">
+        <None Include="..\src\XPM.h">
             <BuildOrder>68</BuildOrder>
         </None>
-        <CppCompile Include="..\CheckD2D.cxx">
-            <BuildOrder>4</BuildOrder>
+        <CppCompile Include="..\win32\CheckD2D.cxx">
+            <BuildOrder>204</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\HanjaDic.cxx">
-            <BuildOrder>5</BuildOrder>
+        <CppCompile Include="..\win32\HanjaDic.cxx">
+            <BuildOrder>205</BuildOrder>
         </CppCompile>
-        <None Include="..\HanjaDic.h">
-            <BuildOrder>2</BuildOrder>
+        <None Include="..\win32\HanjaDic.h">
+            <BuildOrder>202</BuildOrder>
         </None>
-        <CppCompile Include="..\PlatWin.cxx">
-            <BuildOrder>0</BuildOrder>
+        <CppCompile Include="..\win32\PlatWin.cxx">
+            <BuildOrder>200</BuildOrder>
         </CppCompile>
-        <None Include="..\PlatWin.h">
-            <BuildOrder>3</BuildOrder>
+        <None Include="..\win32\PlatWin.h">
+            <BuildOrder>203</BuildOrder>
         </None>
-        <CppCompile Include="..\ScintillaWin.cxx">
-            <BuildOrder>1</BuildOrder>
+        <CppCompile Include="..\win32\ScintillaWin.cxx">
+            <BuildOrder>201</BuildOrder>
         </CppCompile>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -743,13 +750,10 @@
                     <ProjectProperties Name="IndexFiles">False</ProjectProperties>
                 </ProjectProperties>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\18.0\BPL\TTFreeImage.bpl">ファイル C:\Users\Public\Documents\Embarcadero\Studio\18.0\BPL\TTFreeImage.bpl が見つかりません。</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\18.0\BPL\TTFreeImsge.bpl">ファイル C:\Users\Public\Documents\Embarcadero\Studio\18.0\BPL\TTFreeImsge.bpl が見つかりません。</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k240.bpl">Embarcadero C++Builder Office 2000 サーバー パッケージ</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcbofficexp240.bpl">Embarcadero C++Builder Office XP サーバー パッケージ</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k240.bpl">Microsoft Office 2000 オートメーション サーバー ラッパー コンポーネントのサンプル</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp240.bpl">Microsoft Office XP オートメーション サーバー ラッパー コンポーネントのサンプル</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\18.0\BPL\TFreePicture.bpl">ファイル C:\Users\Public\Documents\Embarcadero\Studio\18.0\BPL\TFreePicture.bpl が見つかりません。</Excluded_Packages>
                 </Excluded_Packages>
             </CPlusPlusBuilder.Personality>
             <Deployment Version="3">
@@ -773,8 +777,20 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="..\bin\Win32\Debug\SciLexer.tds" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win32">
+                        <RemoteName>SciLexer.tds</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile Condition="'$(DynamicRTL)'=='true'" LocalName="$(BDS)\Redist\osx32\libcgstl.dylib" Class="DependencyModule">
                     <Platform Name="OSX32">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\bin\Win32\Debug\SciLexer.dll" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>SciLexer</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -793,12 +809,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName=".\Win32\Debug\SciLexer.dll" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>SciLexer</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
                     <Platform Name="OSX32">
                         <Overwrite>true</Overwrite>
@@ -814,12 +824,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName=".\Win32\Debug\SciLexer.tds" Configuration="Debug" Class="DebugSymbols">
-                    <Platform Name="Win32">
-                        <RemoteName>SciLexer.tds</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'=='true'" LocalName="$(BDS)\bin64\cc64240mt.dll" Class="DependencyModule">
                     <Platform Name="Win64">
                         <Overwrite>true</Overwrite>
@@ -827,6 +831,12 @@
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\iossimulator\libPCRE.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName=".\Win32\Release\SciLexer" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>SciLexer</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -1195,7 +1205,7 @@
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
+                <Platform value="Win64">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

@@ -6,6 +6,9 @@
         <Projects Include="SciLexer.cbproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Sintilla.cbproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -23,14 +26,23 @@
     <Target Name="SciLexer:Make">
         <MSBuild Projects="SciLexer.cbproj" Targets="Make"/>
     </Target>
+    <Target Name="Sintilla">
+        <MSBuild Projects="Sintilla.cbproj"/>
+    </Target>
+    <Target Name="Sintilla:Clean">
+        <MSBuild Projects="Sintilla.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Sintilla:Make">
+        <MSBuild Projects="Sintilla.cbproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="SciLexer"/>
+        <CallTarget Targets="SciLexer;Sintilla"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="SciLexer:Clean"/>
+        <CallTarget Targets="SciLexer:Clean;Sintilla:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="SciLexer:Make"/>
+        <CallTarget Targets="SciLexer:Make;Sintilla:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
