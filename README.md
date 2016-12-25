@@ -6,7 +6,7 @@ This is C++Builder project file to build [Scintilla](http://www.scintilla.org/) 
 The file is this!
 -----------------
 
-        scintilla/cbuilder/bcb/SciLexer.cbproj
+        scintilla/cbuilder/SciLexer.cbproj
 
 This version kinda of.
 ----------------------
