@@ -9,6 +9,9 @@
         <Projects Include="Sintilla.cbproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="sample\sample.cbproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="Sintilla:Make">
         <MSBuild Projects="Sintilla.cbproj" Targets="Make"/>
     </Target>
+    <Target Name="sample">
+        <MSBuild Projects="sample\sample.cbproj"/>
+    </Target>
+    <Target Name="sample:Clean">
+        <MSBuild Projects="sample\sample.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="sample:Make">
+        <MSBuild Projects="sample\sample.cbproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="SciLexer;Sintilla"/>
+        <CallTarget Targets="SciLexer;Sintilla;sample"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="SciLexer:Clean;Sintilla:Clean"/>
+        <CallTarget Targets="SciLexer:Clean;Sintilla:Clean;sample:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="SciLexer:Make;Sintilla:Make"/>
+        <CallTarget Targets="SciLexer:Make;Sintilla:Make;sample:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
