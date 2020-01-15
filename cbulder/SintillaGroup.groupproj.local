@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>2016/12/26 05:36:04.000.016,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Scintilla.groupproj=C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Sintilla
+    <Transaction>2016/12/26 05:36:04.000.010,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Scintilla.groupproj=C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Sintilla
 SintillaGroup.groupproj</Transaction>
-    <Transaction>2016/12/26 05:36:04.000.010,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Sintilla
+    <Transaction>2016/12/26 05:36:04.000.016,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Sintilla
 SintillaGroup.groupproj=C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Scintilla.groupproj</Transaction>
-    <Transaction>2016/12/26 05:37:54.000.820,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Scintilla.groupproj=C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Sintilla
+    <Transaction>2016/12/26 05:37:54.000.815,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Scintilla.groupproj=C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Sintilla
 SintillaGroup.groupproj</Transaction>
-    <Transaction>2016/12/26 05:37:54.000.815,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Sintilla
+    <Transaction>2016/12/26 05:37:54.000.820,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Sintilla
 SintillaGroup.groupproj=C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Scintilla.groupproj</Transaction>
-    <Transaction>2016/12/26 05:38:28.000.815,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\SintillaGroup.groupproj=C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Scintilla.groupproj</Transaction>
+    <Transaction>2016/12/26 05:38:28.000.815,C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\Scintilla.groupproj=C:\Users\leiqunni\Documents\GitHub\scintilla\win32\bcb\SintillaGroup.groupproj</Transaction>
   </Transactions>
 	<Default.Personality>
-		<Projects ActiveProject="C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbulder\sample\sample.cbproj"/>
+		<Projects ActiveProject="C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbulder\Sintilla.cbproj"/>
 	</Default.Personality>
 </BorlandProject>
