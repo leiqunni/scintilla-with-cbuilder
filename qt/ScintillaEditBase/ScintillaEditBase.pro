@@ -10,17 +10,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ScintillaEditBase
 TEMPLATE = lib
 CONFIG += lib_bundle
+CONFIG += c++1z
 
-unix {
-    # <regex> requires C++11 support
-    greaterThan(QT_MAJOR_VERSION, 4){
-        CONFIG += c++11
-    } else {
-        QMAKE_CXXFLAGS += -std=c++0x
-    }
-}
-
-VERSION = 3.7.5
+VERSION = 5.3.6
 
 SOURCES += \
     PlatQt.cpp \
@@ -28,6 +20,7 @@ SOURCES += \
     ScintillaEditBase.cpp \
     ../../src/XPM.cxx \
     ../../src/ViewStyle.cxx \
+    ../../src/UniqueString.cxx \
     ../../src/UniConversion.cxx \
     ../../src/Style.cxx \
     ../../src/Selection.cxx \
@@ -40,31 +33,23 @@ SOURCES += \
     ../../src/LineMarker.cxx \
     ../../src/KeyMap.cxx \
     ../../src/Indicator.cxx \
-    ../../src/ExternalLexer.cxx \
+    ../../src/Geometry.cxx \
     ../../src/EditView.cxx \
     ../../src/Editor.cxx \
     ../../src/EditModel.cxx \
     ../../src/Document.cxx \
     ../../src/Decoration.cxx \
+    ../../src/DBCS.cxx \
     ../../src/ContractionState.cxx \
     ../../src/CharClassify.cxx \
+    ../../src/CharacterType.cxx \
+    ../../src/CharacterCategoryMap.cxx \
+    ../../src/ChangeHistory.cxx \
     ../../src/CellBuffer.cxx \
-    ../../src/Catalogue.cxx \
     ../../src/CaseFolder.cxx \
     ../../src/CaseConvert.cxx \
     ../../src/CallTip.cxx \
-    ../../src/AutoComplete.cxx \
-    ../../lexlib/WordList.cxx \
-    ../../lexlib/StyleContext.cxx \
-    ../../lexlib/PropSetSimple.cxx \
-    ../../lexlib/LexerSimple.cxx \
-    ../../lexlib/LexerNoExceptions.cxx \
-    ../../lexlib/LexerModule.cxx \
-    ../../lexlib/LexerBase.cxx \
-    ../../lexlib/CharacterSet.cxx \
-    ../../lexlib/Accessor.cxx \
-    ../../lexlib/CharacterCategory.cxx \
-    ../../lexers/*.cxx
+    ../../src/AutoComplete.cxx
 
 HEADERS  += \
     PlatQt.h \
@@ -73,7 +58,6 @@ HEADERS  += \
     ../../src/XPM.h \
     ../../src/ViewStyle.h \
     ../../src/UniConversion.h \
-    ../../src/UnicodeFromUTF8.h \
     ../../src/Style.h \
     ../../src/SplitVector.h \
     ../../src/Selection.h \
@@ -81,47 +65,34 @@ HEADERS  += \
     ../../src/RunStyles.h \
     ../../src/RESearch.h \
     ../../src/PositionCache.h \
+    ../../src/Platform.h \
     ../../src/PerLine.h \
     ../../src/Partitioning.h \
     ../../src/LineMarker.h \
     ../../src/KeyMap.h \
     ../../src/Indicator.h \
-    ../../src/FontQuality.h \
-    ../../src/ExternalLexer.h \
+    ../../src/Geometry.h \
     ../../src/Editor.h \
     ../../src/Document.h \
     ../../src/Decoration.h \
     ../../src/ContractionState.h \
     ../../src/CharClassify.h \
+    ../../src/CharacterType.h \
+    ../../src/CharacterCategoryMap.h \
+    ../../src/ChangeHistory.h \
     ../../src/CellBuffer.h \
-    ../../src/Catalogue.h \
     ../../src/CaseFolder.h \
     ../../src/CaseConvert.h \
     ../../src/CallTip.h \
     ../../src/AutoComplete.h \
     ../../include/Scintilla.h \
-    ../../include/SciLexer.h \
-    ../../include/Platform.h \
-    ../../include/ILexer.h \
-    ../../lexlib/WordList.h \
-    ../../lexlib/StyleContext.h \
-    ../../lexlib/SparseState.h \
-    ../../lexlib/PropSetSimple.h \
-    ../../lexlib/OptionSet.h \
-    ../../lexlib/LexerSimple.h \
-    ../../lexlib/LexerNoExceptions.h \
-    ../../lexlib/LexerModule.h \
-    ../../lexlib/LexerBase.h \
-    ../../lexlib/LexAccessor.h \
-    ../../lexlib/CharacterSet.h \
-    ../../lexlib/CharacterCategory.h \
-    ../../lexlib/Accessor.h
+    ../../include/ILexer.h
 
 OTHER_FILES +=
 
-INCLUDEPATH += ../../include ../../src ../../lexlib
+INCLUDEPATH += ../../include ../../src
 
-DEFINES += SCINTILLA_QT=1 MAKING_LIBRARY=1 SCI_LEXER=1 _CRT_SECURE_NO_DEPRECATE=1
+DEFINES += SCINTILLA_QT=1 MAKING_LIBRARY=1
 CONFIG(release, debug|release) {
     DEFINES += NDEBUG=1
 }

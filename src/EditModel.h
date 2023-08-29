@@ -8,9 +8,7 @@
 #ifndef EDITMODEL_H
 #define EDITMODEL_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
+namespace Scintilla::Internal {
 
 /**
 */
@@ -20,7 +18,7 @@ public:
 	bool on;
 	int period;
 
-	Caret();
+	Caret() noexcept;
 };
 
 class EditModel {
@@ -35,17 +33,23 @@ public:
 	Sci::Position braces[2];
 	int bracesMatchStyle;
 	int highlightGuideColumn;
+	bool hasFocus;
 	Selection sel;
 	bool primarySelection;
 
-	enum IMEInteraction { imeWindowed, imeInline } imeInteraction;
+	Scintilla::IMEInteraction imeInteraction;
+	Scintilla::Bidirectional bidirectional;
 
-	int foldFlags;
-	int foldDisplayTextStyle;
-	ContractionState cs;
+	Scintilla::FoldFlag foldFlags;
+	Scintilla::FoldDisplayTextStyle foldDisplayTextStyle;
+	UniqueString defaultFoldDisplayText;
+	std::unique_ptr<IContractionState> pcs;
 	// Hotspot support
 	Range hotspot;
+	bool hotspotSingleLine;
 	Sci::Position hoverIndicatorPos;
+
+	Scintilla::ChangeHistoryOption changeHistoryOption = Scintilla::ChangeHistoryOption::Disabled;
 
 	// Wrapping support
 	int wrapWidth;
@@ -54,17 +58,24 @@ public:
 
 	EditModel();
 	// Deleted so EditModel objects can not be copied.
-	explicit EditModel(const EditModel &) = delete;
+	EditModel(const EditModel &) = delete;
+	EditModel(EditModel &&) = delete;
 	EditModel &operator=(const EditModel &) = delete;
+	EditModel &operator=(EditModel &&) = delete;
 	virtual ~EditModel();
-	virtual Sci::Line TopLineOfMain() const = 0;
+	virtual Sci::Line TopLineOfMain() const noexcept = 0;
 	virtual Point GetVisibleOriginInMain() const = 0;
 	virtual Sci::Line LinesOnScreen() const = 0;
-	virtual Range GetHotSpotRange() const = 0;
+	bool BidirectionalEnabled() const noexcept;
+	bool BidirectionalR2L() const noexcept;
+	SurfaceMode CurrentSurfaceMode() const noexcept;
+	void SetDefaultFoldDisplayText(const char *text);
+	const char *GetDefaultFoldDisplayText() const noexcept;
+	const char *GetFoldDisplayText(Sci::Line lineDoc) const noexcept;
+	InSelection LineEndInSelection(Sci::Line lineDoc) const;
+	[[nodiscard]] int GetMark(Sci::Line line) const;
 };
 
-#ifdef SCI_NAMESPACE
 }
-#endif
 
 #endif

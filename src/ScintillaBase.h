@@ -8,17 +8,12 @@
 #ifndef SCINTILLABASE_H
 #define SCINTILLABASE_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
+namespace Scintilla::Internal {
 
-#ifdef SCI_LEXER
 class LexState;
-#endif
-
 /**
  */
-class ScintillaBase : public Editor {
+class ScintillaBase : public Editor, IListBoxDelegate {
 protected:
 	/** Enumeration of commands and child windows. */
 	enum {
@@ -34,49 +29,47 @@ protected:
 		idcmdSelectAll=16
 	};
 
-	enum { maxLenInputIME = 200 };
-
-	int displayPopupMenu;
+	Scintilla::PopUp displayPopupMenu;
 	Menu popup;
-	AutoComplete ac;
+	Scintilla::Internal::AutoComplete ac;
 
 	CallTip ct;
 
 	int listType;			///< 0 is an autocomplete list
 	int maxListWidth;		/// Maximum width of list, in average character widths
-	int multiAutoCMode; /// Mode for autocompleting when multiple selections are present
+	Scintilla::MultiAutoComplete multiAutoCMode; /// Mode for autocompleting when multiple selections are present
 
-#ifdef SCI_LEXER
 	LexState *DocumentLexState();
-	void SetLexer(uptr_t wParam);
-	void SetLexerLanguage(const char *languageName);
 	void Colourise(int start, int end);
-#endif
 
 	ScintillaBase();
 	// Deleted so ScintillaBase objects can not be copied.
-	explicit ScintillaBase(const ScintillaBase &) = delete;
+	ScintillaBase(const ScintillaBase &) = delete;
+	ScintillaBase(ScintillaBase &&) = delete;
 	ScintillaBase &operator=(const ScintillaBase &) = delete;
-	virtual ~ScintillaBase();
+	ScintillaBase &operator=(ScintillaBase &&) = delete;
+	// ~ScintillaBase() in public section
 	void Initialise() override {}
 	void Finalise() override;
 
-	void AddCharUTF(const char *s, unsigned int len, bool treatAsDBCS=false) override;
+	void InsertCharacter(std::string_view sv, Scintilla::CharacterSource charSource) override;
 	void Command(int cmdId);
 	void CancelModes() override;
-	int KeyCommand(unsigned int iMessage) override;
+	int KeyCommand(Scintilla::Message iMessage) override;
 
-	void AutoCompleteInsert(Sci::Position startPos, int removeLen, const char *text, int textLen);
-	void AutoCompleteStart(int lenEntered, const char *list);
+	void AutoCompleteInsert(Sci::Position startPos, Sci::Position removeLen, std::string_view text);
+	void AutoCompleteStart(Sci::Position lenEntered, const char *list);
 	void AutoCompleteCancel();
 	void AutoCompleteMove(int delta);
 	int AutoCompleteGetCurrent() const;
 	int AutoCompleteGetCurrentText(char *buffer) const;
 	void AutoCompleteCharacterAdded(char ch);
 	void AutoCompleteCharacterDeleted();
-	void AutoCompleteCompleted(char ch, unsigned int completionMethod);
+	void AutoCompleteNotifyCompleted(char ch, CompletionMethods completionMethod, Sci::Position firstPos, const char *text);
+	void AutoCompleteCompleted(char ch, Scintilla::CompletionMethods completionMethod);
 	void AutoCompleteMoveToCurrentWord();
-	static void AutoCompleteDoubleClick(void *p);
+	void AutoCompleteSelection();
+	void ListNotify(ListBoxEvent *plbe) override;
 
 	void CallTipClick();
 	void CallTipShow(Point pt, const char *defn);
@@ -86,20 +79,18 @@ protected:
 	bool ShouldDisplayPopup(Point ptInWindowCoordinates) const;
 	void ContextMenu(Point pt);
 
-	void ButtonDownWithModifiers(Point pt, unsigned int curTime, int modifiers) override;
-	void ButtonDown(Point pt, unsigned int curTime, bool shift, bool ctrl, bool alt) override;
-	void RightButtonDownWithModifiers(Point pt, unsigned int curTime, int modifiers) override;
+	void ButtonDownWithModifiers(Point pt, unsigned int curTime, Scintilla::KeyMod modifiers) override;
+	void RightButtonDownWithModifiers(Point pt, unsigned int curTime, Scintilla::KeyMod modifiers) override;
 
 	void NotifyStyleToNeeded(Sci::Position endStyleNeeded) override;
-	void NotifyLexerChanged(Document *doc, void *userData) override;
 
 public:
+	~ScintillaBase() override;
+
 	// Public so scintilla_send_message can use it
-	sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) override;
+	Scintilla::sptr_t WndProc(Scintilla::Message iMessage, Scintilla::uptr_t wParam, Scintilla::sptr_t lParam) override;
 };
 
-#ifdef SCI_NAMESPACE
 }
-#endif
 
 #endif

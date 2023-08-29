@@ -6,27 +6,39 @@
 // Author: Jason Haslam
 //
 // Additions Copyright (c) 2011 Archaeopteryx Software, Inc. d/b/a Wingware
-// ScintillaWidget.h - Qt widget that wraps ScintillaQt and provides events and scrolling
+// @file ScintillaEditBase.h - Qt widget that wraps ScintillaQt and provides events and scrolling
 
 
 #ifndef SCINTILLAEDITBASE_H
 #define SCINTILLAEDITBASE_H
 
+#include <cstddef>
+
+#include <string_view>
+#include <vector>
+#include <optional>
+#include <memory>
+
+#include "Debugging.h"
+#include "Geometry.h"
+#include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
+#include "ScintillaStructures.h"
 #include "Platform.h"
 #include "Scintilla.h"
 
 #include <QAbstractScrollArea>
 #include <QMimeData>
-#include <QTime>
+#include <QElapsedTimer>
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
+namespace Scintilla::Internal {
 
 class ScintillaQt;
 class SurfaceImpl;
-struct SCNotification;
 
+}
+
+#ifndef EXPORT_IMPORT_API
 #ifdef WIN32
 #ifdef MAKING_LIBRARY
 #define EXPORT_IMPORT_API __declspec(dllexport)
@@ -37,6 +49,7 @@ struct SCNotification;
 #endif
 #else
 #define EXPORT_IMPORT_API
+#endif
 #endif
 
 class EXPORT_IMPORT_API ScintillaEditBase : public QAbstractScrollArea {
@@ -62,8 +75,8 @@ public slots:
 	void scrollVertical(int value);
 
 	// Emit Scintilla notifications as signals.
-	void notifyParent(SCNotification scn);
-	void event_command(uptr_t wParam, sptr_t lParam);
+	void notifyParent(Scintilla::NotificationData scn);
+	void event_command(Scintilla::uptr_t wParam, Scintilla::sptr_t lParam);
 
 signals:
 	void horizontalScrolled(int value);
@@ -71,41 +84,42 @@ signals:
 	void horizontalRangeChanged(int max, int page);
 	void verticalRangeChanged(int max, int page);
 	void notifyChange();
-	void linesAdded(int linesAdded);
+	void linesAdded(Scintilla::Position linesAdded);
 
 	// Clients can use this hook to add additional
 	// formats (e.g. rich text) to the MIME data.
 	void aboutToCopy(QMimeData *data);
 
 	// Scintilla Notifications
-	void styleNeeded(int position);
+	void styleNeeded(Scintilla::Position position);
 	void charAdded(int ch);
 	void savePointChanged(bool dirty);
 	void modifyAttemptReadOnly();
 	void key(int key);
-	void doubleClick(int position, int line);
-	void updateUi();
-	void modified(int type, int position, int length, int linesAdded,
-	              const QByteArray &text, int line, int foldNow, int foldPrev);
-	void macroRecord(int message, uptr_t wParam, sptr_t lParam);
-	void marginClicked(int position, int modifiers, int margin);
-	void textAreaClicked(int line, int modifiers);
-	void needShown(int position, int length);
+	void doubleClick(Scintilla::Position position, Scintilla::Position line);
+	void updateUi(Scintilla::Update updated);
+	void modified(Scintilla::ModificationFlags type, Scintilla::Position position, Scintilla::Position length, Scintilla::Position linesAdded,
+		      const QByteArray &text, Scintilla::Position line, Scintilla::FoldLevel foldNow, Scintilla::FoldLevel foldPrev);
+	void macroRecord(Scintilla::Message message, Scintilla::uptr_t wParam, Scintilla::sptr_t lParam);
+	void marginClicked(Scintilla::Position position, Scintilla::KeyMod modifiers, int margin);
+	void textAreaClicked(Scintilla::Position line, int modifiers);
+	void needShown(Scintilla::Position position, Scintilla::Position length);
 	void painted();
 	void userListSelection(); // Wants some args.
-	void uriDropped();        // Wants some args.
+	void uriDropped(const QString &uri);
 	void dwellStart(int x, int y);
 	void dwellEnd(int x, int y);
 	void zoom(int zoom);
-	void hotSpotClick(int position, int modifiers);
-	void hotSpotDoubleClick(int position, int modifiers);
+	void hotSpotClick(Scintilla::Position position, Scintilla::KeyMod modifiers);
+	void hotSpotDoubleClick(Scintilla::Position position, Scintilla::KeyMod modifiers);
 	void callTipClick();
-	void autoCompleteSelection(int position, const QString &text);
+	void autoCompleteSelection(Scintilla::Position position, const QString &text);
 	void autoCompleteCancelled();
+	void focusChanged(bool focused);
 
 	// Base notifications for compatibility with other Scintilla implementations
-	void notify(SCNotification *pscn);
-	void command(uptr_t wParam, sptr_t lParam);
+	void notify(Scintilla::NotificationData *pscn);
+	void command(Scintilla::uptr_t wParam, Scintilla::sptr_t lParam);
 
 	// GUI event notifications needed under Qt
 	void buttonPressed(QMouseEvent *event);
@@ -135,22 +149,19 @@ protected:
 	void scrollContentsBy(int, int) override {}
 
 private:
-	ScintillaQt *sqt;
+	Scintilla::Internal::ScintillaQt *sqt;
 
-	QTime time;
+	QElapsedTimer time;
 
-	int preeditPos;
+	Scintilla::Position preeditPos;
 	QString preeditString;
 
 	int wheelDelta;
 
 	static bool IsHangul(const QChar qchar);
-	void MoveImeCarets(int offset);
+	void MoveImeCarets(Scintilla::Position offset);
 	void DrawImeIndicator(int indicator, int len);
+	static Scintilla::KeyMod ModifiersOfKeyboard();
 };
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif /* SCINTILLAEDITBASE_H */

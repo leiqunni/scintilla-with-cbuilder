@@ -1,5 +1,5 @@
 /* Scintilla source code edit control */
-/* ScintillaGTKAccessible.c - GTK+ accessibility for ScintillaGTK */
+/* ScintillaGTKAccessible.cxx - GTK+ accessibility for ScintillaGTK */
 /* Copyright 2016 by Colomban Wendling <colomban@geany.org>
  * The License.txt file describes the conditions under which this software may be distributed. */
 
@@ -53,13 +53,18 @@
 
 #include <cstddef>
 #include <cstdlib>
+#include <cstdint>
+#include <cassert>
 #include <cstring>
 
 #include <stdexcept>
 #include <new>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
+#include <set>
+#include <optional>
 #include <algorithm>
 #include <memory>
 
@@ -77,23 +82,27 @@
 # include <gtk/gtk-a11y.h>
 #endif
 
-#if defined(__WIN32__) || defined(_MSC_VER)
+#if defined(_WIN32)
+// On Win32 use windows.h to access CLIPFORMAT
+#undef NOMINMAX
+#define NOMINMAX
 #include <windows.h>
 #endif
 
 // ScintillaGTK.h and stuff it needs
+#include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
+#include "ScintillaStructures.h"
+#include "ILoader.h"
+#include "ILexer.h"
+
+#include "Debugging.h"
+#include "Geometry.h"
 #include "Platform.h"
 
-#include "ILexer.h"
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
-#ifdef SCI_LEXER
-#include "SciLexer.h"
-#endif
-#include "StringCopy.h"
-#ifdef SCI_LEXER
-#include "LexerModule.h"
-#endif
+#include "CharacterCategoryMap.h"
 #include "Position.h"
 #include "UniqueString.h"
 #include "SplitVector.h"
@@ -104,7 +113,6 @@
 #include "CallTip.h"
 #include "KeyMap.h"
 #include "Indicator.h"
-#include "XPM.h"
 #include "LineMarker.h"
 #include "Style.h"
 #include "ViewStyle.h"
@@ -114,7 +122,6 @@
 #include "Document.h"
 #include "CaseConvert.h"
 #include "UniConversion.h"
-#include "UnicodeFromUTF8.h"
 #include "Selection.h"
 #include "PositionCache.h"
 #include "EditModel.h"
@@ -124,12 +131,12 @@
 #include "AutoComplete.h"
 #include "ScintillaBase.h"
 
+#include "Wrappers.h"
 #include "ScintillaGTK.h"
 #include "ScintillaGTKAccessible.h"
 
-#ifdef SCI_NAMESPACE
 using namespace Scintilla;
-#endif
+using namespace Scintilla::Internal;
 
 struct ScintillaObjectAccessiblePrivate {
 	ScintillaGTKAccessible *pscin;
@@ -150,7 +157,7 @@ ScintillaGTKAccessible *ScintillaGTKAccessible::FromAccessible(GtkAccessible *ac
 	// FIXME: do we need the check below?  GTK checks that in all methods, so maybe
 	GtkWidget *widget = gtk_accessible_get_widget(accessible);
 	if (! widget) {
-		return 0;
+		return nullptr;
 	}
 
 	return SCINTILLA_OBJECT_ACCESSIBLE_GET_PRIVATE(accessible)->pscin;
@@ -159,29 +166,29 @@ ScintillaGTKAccessible *ScintillaGTKAccessible::FromAccessible(GtkAccessible *ac
 ScintillaGTKAccessible::ScintillaGTKAccessible(GtkAccessible *accessible_, GtkWidget *widget_) :
 		accessible(accessible_),
 		sci(ScintillaGTK::FromWidget(widget_)),
-		deletionLengthChar(0),
 		old_pos(-1) {
+	SetAccessibility(true);
 	g_signal_connect(widget_, "sci-notify", G_CALLBACK(SciNotify), this);
 }
 
 ScintillaGTKAccessible::~ScintillaGTKAccessible() {
 	if (gtk_accessible_get_widget(accessible)) {
-		g_signal_handlers_disconnect_matched(sci->sci, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, this);
+		g_signal_handlers_disconnect_matched(sci->sci, G_SIGNAL_MATCH_DATA, 0, 0, nullptr, nullptr, this);
 	}
 }
 
 gchar *ScintillaGTKAccessible::GetTextRangeUTF8(Sci::Position startByte, Sci::Position endByte) {
-	g_return_val_if_fail(startByte >= 0, NULL);
+	g_return_val_if_fail(startByte >= 0, nullptr);
 	// FIXME: should we swap start/end if necessary?
-	g_return_val_if_fail(endByte >= startByte, NULL);
+	g_return_val_if_fail(endByte >= startByte, nullptr);
 
-	gchar *utf8Text = NULL;
+	gchar *utf8Text = nullptr;
 	const char *charSetBuffer;
 
 	// like TargetAsUTF8, but avoids a double conversion
 	if (sci->IsUnicodeMode() || ! *(charSetBuffer = sci->CharacterSetID())) {
 		int len = endByte - startByte;
-		utf8Text = (char *) g_malloc(len + 1);
+		utf8Text = static_cast<gchar *>(g_malloc(len + 1));
 		sci->pdoc->GetCharRange(utf8Text, startByte, len);
 		utf8Text[len] = '\0';
 	} else {
@@ -189,7 +196,7 @@ gchar *ScintillaGTKAccessible::GetTextRangeUTF8(Sci::Position startByte, Sci::Po
 		std::string s = sci->RangeText(startByte, endByte);
 		std::string tmputf = ConvertText(&s[0], s.length(), "UTF-8", charSetBuffer, false);
 		size_t len = tmputf.length();
-		utf8Text = (char *) g_malloc(len + 1);
+		utf8Text = static_cast<gchar *>(g_malloc(len + 1));
 		memcpy(utf8Text, tmputf.c_str(), len);
 		utf8Text[len] = '\0';
 	}
@@ -210,7 +217,7 @@ gchar *ScintillaGTKAccessible::GetText(int startChar, int endChar) {
 
 gchar *ScintillaGTKAccessible::GetTextAfterOffset(int charOffset,
 		AtkTextBoundary boundaryType, int *startChar, int *endChar) {
-	g_return_val_if_fail(charOffset >= 0, NULL);
+	g_return_val_if_fail(charOffset >= 0, nullptr);
 
 	Sci::Position startByte, endByte;
 	Sci::Position byteOffset = ByteOffsetFromCharacterOffset(charOffset);
@@ -223,36 +230,36 @@ gchar *ScintillaGTKAccessible::GetTextAfterOffset(int charOffset,
 			break;
 
 		case ATK_TEXT_BOUNDARY_WORD_START:
-			startByte = sci->WndProc(SCI_WORDENDPOSITION, byteOffset, 1);
-			startByte = sci->WndProc(SCI_WORDENDPOSITION, startByte, 0);
-			endByte = sci->WndProc(SCI_WORDENDPOSITION, startByte, 1);
-			endByte = sci->WndProc(SCI_WORDENDPOSITION, endByte, 0);
+			startByte = sci->WndProc(Message::WordEndPosition, byteOffset, 1);
+			startByte = sci->WndProc(Message::WordEndPosition, startByte, 0);
+			endByte = sci->WndProc(Message::WordEndPosition, startByte, 1);
+			endByte = sci->WndProc(Message::WordEndPosition, endByte, 0);
 			break;
 
 		case ATK_TEXT_BOUNDARY_WORD_END:
-			startByte = sci->WndProc(SCI_WORDENDPOSITION, byteOffset, 0);
-			startByte = sci->WndProc(SCI_WORDENDPOSITION, startByte, 1);
-			endByte = sci->WndProc(SCI_WORDENDPOSITION, startByte, 0);
-			endByte = sci->WndProc(SCI_WORDENDPOSITION, endByte, 1);
+			startByte = sci->WndProc(Message::WordEndPosition, byteOffset, 0);
+			startByte = sci->WndProc(Message::WordEndPosition, startByte, 1);
+			endByte = sci->WndProc(Message::WordEndPosition, startByte, 0);
+			endByte = sci->WndProc(Message::WordEndPosition, endByte, 1);
 			break;
 
 		case ATK_TEXT_BOUNDARY_LINE_START: {
-			int line = sci->WndProc(SCI_LINEFROMPOSITION, byteOffset, 0);
-			startByte = sci->WndProc(SCI_POSITIONFROMLINE, line + 1, 0);
-			endByte = sci->WndProc(SCI_POSITIONFROMLINE, line + 2, 0);
+			int line = sci->WndProc(Message::LineFromPosition, byteOffset, 0);
+			startByte = sci->WndProc(Message::PositionFromLine, line + 1, 0);
+			endByte = sci->WndProc(Message::PositionFromLine, line + 2, 0);
 			break;
 		}
 
 		case ATK_TEXT_BOUNDARY_LINE_END: {
-			int line = sci->WndProc(SCI_LINEFROMPOSITION, byteOffset, 0);
-			startByte = sci->WndProc(SCI_GETLINEENDPOSITION, line, 0);
-			endByte = sci->WndProc(SCI_GETLINEENDPOSITION, line + 1, 0);
+			int line = sci->WndProc(Message::LineFromPosition, byteOffset, 0);
+			startByte = sci->WndProc(Message::GetLineEndPosition, line, 0);
+			endByte = sci->WndProc(Message::GetLineEndPosition, line + 1, 0);
 			break;
 		}
 
 		default:
 			*startChar = *endChar = -1;
-			return NULL;
+			return nullptr;
 	}
 
 	CharacterRangeFromByteRange(startByte, endByte, startChar, endChar);
@@ -261,7 +268,7 @@ gchar *ScintillaGTKAccessible::GetTextAfterOffset(int charOffset,
 
 gchar *ScintillaGTKAccessible::GetTextBeforeOffset(int charOffset,
 		AtkTextBoundary boundaryType, int *startChar, int *endChar) {
-	g_return_val_if_fail(charOffset >= 0, NULL);
+	g_return_val_if_fail(charOffset >= 0, nullptr);
 
 	Sci::Position startByte, endByte;
 	Sci::Position byteOffset = ByteOffsetFromCharacterOffset(charOffset);
@@ -273,24 +280,24 @@ gchar *ScintillaGTKAccessible::GetTextBeforeOffset(int charOffset,
 			break;
 
 		case ATK_TEXT_BOUNDARY_WORD_START:
-			endByte = sci->WndProc(SCI_WORDSTARTPOSITION, byteOffset, 0);
-			endByte = sci->WndProc(SCI_WORDSTARTPOSITION, endByte, 1);
-			startByte = sci->WndProc(SCI_WORDSTARTPOSITION, endByte, 0);
-			startByte = sci->WndProc(SCI_WORDSTARTPOSITION, startByte, 1);
+			endByte = sci->WndProc(Message::WordStartPosition, byteOffset, 0);
+			endByte = sci->WndProc(Message::WordStartPosition, endByte, 1);
+			startByte = sci->WndProc(Message::WordStartPosition, endByte, 0);
+			startByte = sci->WndProc(Message::WordStartPosition, startByte, 1);
 			break;
 
 		case ATK_TEXT_BOUNDARY_WORD_END:
-			endByte = sci->WndProc(SCI_WORDSTARTPOSITION, byteOffset, 1);
-			endByte = sci->WndProc(SCI_WORDSTARTPOSITION, endByte, 0);
-			startByte = sci->WndProc(SCI_WORDSTARTPOSITION, endByte, 1);
-			startByte = sci->WndProc(SCI_WORDSTARTPOSITION, startByte, 0);
+			endByte = sci->WndProc(Message::WordStartPosition, byteOffset, 1);
+			endByte = sci->WndProc(Message::WordStartPosition, endByte, 0);
+			startByte = sci->WndProc(Message::WordStartPosition, endByte, 1);
+			startByte = sci->WndProc(Message::WordStartPosition, startByte, 0);
 			break;
 
 		case ATK_TEXT_BOUNDARY_LINE_START: {
-			int line = sci->WndProc(SCI_LINEFROMPOSITION, byteOffset, 0);
-			endByte = sci->WndProc(SCI_POSITIONFROMLINE, line, 0);
+			int line = sci->WndProc(Message::LineFromPosition, byteOffset, 0);
+			endByte = sci->WndProc(Message::PositionFromLine, line, 0);
 			if (line > 0) {
-				startByte = sci->WndProc(SCI_POSITIONFROMLINE, line - 1, 0);
+				startByte = sci->WndProc(Message::PositionFromLine, line - 1, 0);
 			} else {
 				startByte = endByte;
 			}
@@ -298,14 +305,14 @@ gchar *ScintillaGTKAccessible::GetTextBeforeOffset(int charOffset,
 		}
 
 		case ATK_TEXT_BOUNDARY_LINE_END: {
-			int line = sci->WndProc(SCI_LINEFROMPOSITION, byteOffset, 0);
+			int line = sci->WndProc(Message::LineFromPosition, byteOffset, 0);
 			if (line > 0) {
-				endByte = sci->WndProc(SCI_GETLINEENDPOSITION, line - 1, 0);
+				endByte = sci->WndProc(Message::GetLineEndPosition, line - 1, 0);
 			} else {
 				endByte = 0;
 			}
 			if (line > 1) {
-				startByte = sci->WndProc(SCI_GETLINEENDPOSITION, line - 2, 0);
+				startByte = sci->WndProc(Message::GetLineEndPosition, line - 2, 0);
 			} else {
 				startByte = endByte;
 			}
@@ -314,7 +321,7 @@ gchar *ScintillaGTKAccessible::GetTextBeforeOffset(int charOffset,
 
 		default:
 			*startChar = *endChar = -1;
-			return NULL;
+			return nullptr;
 	}
 
 	CharacterRangeFromByteRange(startByte, endByte, startChar, endChar);
@@ -323,7 +330,7 @@ gchar *ScintillaGTKAccessible::GetTextBeforeOffset(int charOffset,
 
 gchar *ScintillaGTKAccessible::GetTextAtOffset(int charOffset,
 		AtkTextBoundary boundaryType, int *startChar, int *endChar) {
-	g_return_val_if_fail(charOffset >= 0, NULL);
+	g_return_val_if_fail(charOffset >= 0, nullptr);
 
 	Sci::Position startByte, endByte;
 	Sci::Position byteOffset = ByteOffsetFromCharacterOffset(charOffset);
@@ -331,52 +338,52 @@ gchar *ScintillaGTKAccessible::GetTextAtOffset(int charOffset,
 	switch (boundaryType) {
 		case ATK_TEXT_BOUNDARY_CHAR:
 			startByte = byteOffset;
-			endByte = sci->WndProc(SCI_POSITIONAFTER, byteOffset, 0);
+			endByte = sci->WndProc(Message::PositionAfter, byteOffset, 0);
 			break;
 
 		case ATK_TEXT_BOUNDARY_WORD_START:
-			startByte = sci->WndProc(SCI_WORDSTARTPOSITION, byteOffset, 1);
-			endByte = sci->WndProc(SCI_WORDENDPOSITION, byteOffset, 1);
-			if (! sci->WndProc(SCI_ISRANGEWORD, startByte, endByte)) {
+			startByte = sci->WndProc(Message::WordStartPosition, byteOffset, 1);
+			endByte = sci->WndProc(Message::WordEndPosition, byteOffset, 1);
+			if (! sci->WndProc(Message::IsRangeWord, startByte, endByte)) {
 				// if the cursor was not on a word, forward back
-				startByte = sci->WndProc(SCI_WORDSTARTPOSITION, startByte, 0);
-				startByte = sci->WndProc(SCI_WORDSTARTPOSITION, startByte, 1);
+				startByte = sci->WndProc(Message::WordStartPosition, startByte, 0);
+				startByte = sci->WndProc(Message::WordStartPosition, startByte, 1);
 			}
-			endByte = sci->WndProc(SCI_WORDENDPOSITION, endByte, 0);
+			endByte = sci->WndProc(Message::WordEndPosition, endByte, 0);
 			break;
 
 		case ATK_TEXT_BOUNDARY_WORD_END:
-			startByte = sci->WndProc(SCI_WORDSTARTPOSITION, byteOffset, 1);
-			endByte = sci->WndProc(SCI_WORDENDPOSITION, byteOffset, 1);
-			if (! sci->WndProc(SCI_ISRANGEWORD, startByte, endByte)) {
+			startByte = sci->WndProc(Message::WordStartPosition, byteOffset, 1);
+			endByte = sci->WndProc(Message::WordEndPosition, byteOffset, 1);
+			if (! sci->WndProc(Message::IsRangeWord, startByte, endByte)) {
 				// if the cursor was not on a word, forward back
-				endByte = sci->WndProc(SCI_WORDENDPOSITION, endByte, 0);
-				endByte = sci->WndProc(SCI_WORDENDPOSITION, endByte, 1);
+				endByte = sci->WndProc(Message::WordEndPosition, endByte, 0);
+				endByte = sci->WndProc(Message::WordEndPosition, endByte, 1);
 			}
-			startByte = sci->WndProc(SCI_WORDSTARTPOSITION, startByte, 0);
+			startByte = sci->WndProc(Message::WordStartPosition, startByte, 0);
 			break;
 
 		case ATK_TEXT_BOUNDARY_LINE_START: {
-			int line = sci->WndProc(SCI_LINEFROMPOSITION, byteOffset, 0);
-			startByte = sci->WndProc(SCI_POSITIONFROMLINE, line, 0);
-			endByte = sci->WndProc(SCI_POSITIONFROMLINE, line + 1, 0);
+			int line = sci->WndProc(Message::LineFromPosition, byteOffset, 0);
+			startByte = sci->WndProc(Message::PositionFromLine, line, 0);
+			endByte = sci->WndProc(Message::PositionFromLine, line + 1, 0);
 			break;
 		}
 
 		case ATK_TEXT_BOUNDARY_LINE_END: {
-			int line = sci->WndProc(SCI_LINEFROMPOSITION, byteOffset, 0);
+			int line = sci->WndProc(Message::LineFromPosition, byteOffset, 0);
 			if (line > 0) {
-				startByte = sci->WndProc(SCI_GETLINEENDPOSITION, line - 1, 0);
+				startByte = sci->WndProc(Message::GetLineEndPosition, line - 1, 0);
 			} else {
 				startByte = 0;
 			}
-			endByte = sci->WndProc(SCI_GETLINEENDPOSITION, line, 0);
+			endByte = sci->WndProc(Message::GetLineEndPosition, line, 0);
 			break;
 		}
 
 		default:
 			*startChar = *endChar = -1;
-			return NULL;
+			return nullptr;
 	}
 
 	CharacterRangeFromByteRange(startByte, endByte, startChar, endChar);
@@ -386,7 +393,7 @@ gchar *ScintillaGTKAccessible::GetTextAtOffset(int charOffset,
 #if ATK_CHECK_VERSION(2, 10, 0)
 gchar *ScintillaGTKAccessible::GetStringAtOffset(int charOffset,
 		AtkTextGranularity granularity, int *startChar, int *endChar) {
-	g_return_val_if_fail(charOffset >= 0, NULL);
+	g_return_val_if_fail(charOffset >= 0, nullptr);
 
 	Sci::Position startByte, endByte;
 	Sci::Position byteOffset = ByteOffsetFromCharacterOffset(charOffset);
@@ -394,21 +401,21 @@ gchar *ScintillaGTKAccessible::GetStringAtOffset(int charOffset,
 	switch (granularity) {
 		case ATK_TEXT_GRANULARITY_CHAR:
 			startByte = byteOffset;
-			endByte = sci->WndProc(SCI_POSITIONAFTER, byteOffset, 0);
+			endByte = sci->WndProc(Message::PositionAfter, byteOffset, 0);
 			break;
 		case ATK_TEXT_GRANULARITY_WORD:
-			startByte = sci->WndProc(SCI_WORDSTARTPOSITION, byteOffset, 1);
-			endByte = sci->WndProc(SCI_WORDENDPOSITION, byteOffset, 1);
+			startByte = sci->WndProc(Message::WordStartPosition, byteOffset, 1);
+			endByte = sci->WndProc(Message::WordEndPosition, byteOffset, 1);
 			break;
 		case ATK_TEXT_GRANULARITY_LINE: {
-			gint line = sci->WndProc(SCI_LINEFROMPOSITION, byteOffset, 0);
-			startByte = sci->WndProc(SCI_POSITIONFROMLINE, line, 0);
-			endByte = sci->WndProc(SCI_GETLINEENDPOSITION, line, 0);
+			gint line = sci->WndProc(Message::LineFromPosition, byteOffset, 0);
+			startByte = sci->WndProc(Message::PositionFromLine, line, 0);
+			endByte = sci->WndProc(Message::GetLineEndPosition, line, 0);
 			break;
 		}
 		default:
 			*startChar = *endChar = -1;
-			return NULL;
+			return nullptr;
 	}
 
 	CharacterRangeFromByteRange(startByte, endByte, startChar, endChar);
@@ -433,11 +440,11 @@ gint ScintillaGTKAccessible::GetCharacterCount() {
 }
 
 gint ScintillaGTKAccessible::GetCaretOffset() {
-	return CharacterOffsetFromByteOffset(sci->WndProc(SCI_GETCURRENTPOS, 0, 0));
+	return CharacterOffsetFromByteOffset(sci->WndProc(Message::GetCurrentPos, 0, 0));
 }
 
 gboolean ScintillaGTKAccessible::SetCaretOffset(int charOffset) {
-	sci->WndProc(SCI_GOTOPOS, ByteOffsetFromCharacterOffset(charOffset), 0);
+	sci->WndProc(Message::GotoPos, ByteOffsetFromCharacterOffset(charOffset), 0);
 	return TRUE;
 }
 
@@ -461,7 +468,7 @@ gint ScintillaGTKAccessible::GetOffsetAtPoint(gint x, gint y, AtkCoordType coord
 	}
 
 	// FIXME: should we handle scrolling?
-	return CharacterOffsetFromByteOffset(sci->WndProc(SCI_CHARPOSITIONFROMPOINTCLOSE, x, y));
+	return CharacterOffsetFromByteOffset(sci->WndProc(Message::CharPositionFromPointClose, x, y));
 }
 
 void ScintillaGTKAccessible::GetCharacterExtents(int charOffset,
@@ -471,14 +478,14 @@ void ScintillaGTKAccessible::GetCharacterExtents(int charOffset,
 	Sci::Position byteOffset = ByteOffsetFromCharacterOffset(charOffset);
 
 	// FIXME: should we handle scrolling?
-	*x = sci->WndProc(SCI_POINTXFROMPOSITION, 0, byteOffset);
-	*y = sci->WndProc(SCI_POINTYFROMPOSITION, 0, byteOffset);
+	*x = sci->WndProc(Message::PointXFromPosition, 0, byteOffset);
+	*y = sci->WndProc(Message::PointYFromPosition, 0, byteOffset);
 
-	int line = sci->WndProc(SCI_LINEFROMPOSITION, byteOffset, 0);
-	*height = sci->WndProc(SCI_TEXTHEIGHT, line, 0);
+	int line = sci->WndProc(Message::LineFromPosition, byteOffset, 0);
+	*height = sci->WndProc(Message::TextHeight, line, 0);
 
 	int nextByteOffset = PositionAfter(byteOffset);
-	int next_x = sci->WndProc(SCI_POINTXFROMPOSITION, 0, nextByteOffset);
+	int next_x = sci->WndProc(Message::PointXFromPosition, 0, nextByteOffset);
 	if (next_x > *x) {
 		*width = next_x - *x;
 	} else if (nextByteOffset > byteOffset) {
@@ -524,21 +531,21 @@ static AtkAttributeSet *AddTextIntAttribute(AtkAttributeSet *attributes, AtkText
 	return AddTextAttribute(attributes, attr, g_strdup(atk_text_attribute_get_value(attr, i)));
 }
 
-static AtkAttributeSet *AddTextColorAttribute(AtkAttributeSet *attributes, AtkTextAttribute attr, const ColourDesired &colour) {
+static AtkAttributeSet *AddTextColorAttribute(AtkAttributeSet *attributes, AtkTextAttribute attr, ColourRGBA colour) {
 	return AddTextAttribute(attributes, attr,
 		g_strdup_printf("%u,%u,%u", colour.GetRed() * 257, colour.GetGreen() * 257, colour.GetBlue() * 257));
 }
 
 AtkAttributeSet *ScintillaGTKAccessible::GetAttributesForStyle(unsigned int styleNum) {
-	AtkAttributeSet *attr_set = NULL;
+	AtkAttributeSet *attr_set = nullptr;
 
 	if (styleNum >= sci->vs.styles.size())
-		return NULL;
+		return nullptr;
 	Style &style = sci->vs.styles[styleNum];
 
 	attr_set = AddTextAttribute(attr_set, ATK_TEXT_ATTR_FAMILY_NAME, g_strdup(style.fontName));
 	attr_set = AddTextAttribute(attr_set, ATK_TEXT_ATTR_SIZE, g_strdup_printf("%d", style.size / SC_FONT_SIZE_MULTIPLIER));
-	attr_set = AddTextIntAttribute(attr_set, ATK_TEXT_ATTR_WEIGHT, CLAMP(style.weight, 100, 1000));
+	attr_set = AddTextIntAttribute(attr_set, ATK_TEXT_ATTR_WEIGHT, CLAMP(static_cast<int>(style.weight), 100, 1000));
 	attr_set = AddTextIntAttribute(attr_set, ATK_TEXT_ATTR_STYLE, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
 	attr_set = AddTextIntAttribute(attr_set, ATK_TEXT_ATTR_UNDERLINE, style.underline ? PANGO_UNDERLINE_SINGLE : PANGO_UNDERLINE_NONE);
 	attr_set = AddTextColorAttribute(attr_set, ATK_TEXT_ATTR_FG_COLOR, style.fore);
@@ -550,17 +557,17 @@ AtkAttributeSet *ScintillaGTKAccessible::GetAttributesForStyle(unsigned int styl
 }
 
 AtkAttributeSet *ScintillaGTKAccessible::GetRunAttributes(int charOffset, int *startChar, int *endChar) {
-	g_return_val_if_fail(charOffset >= -1, NULL);
+	g_return_val_if_fail(charOffset >= -1, nullptr);
 
 	Sci::Position byteOffset;
 	if (charOffset == -1) {
-		byteOffset = sci->WndProc(SCI_GETCURRENTPOS, 0, 0);
+		byteOffset = sci->WndProc(Message::GetCurrentPos, 0, 0);
 	} else {
 		byteOffset = ByteOffsetFromCharacterOffset(charOffset);
 	}
 	int length = sci->pdoc->Length();
 
-	g_return_val_if_fail(byteOffset <= length, NULL);
+	g_return_val_if_fail(byteOffset <= length, nullptr);
 
 	const char style = StyleAt(byteOffset, true);
 	// compute the range for this style
@@ -586,7 +593,7 @@ gint ScintillaGTKAccessible::GetNSelections() {
 
 gchar *ScintillaGTKAccessible::GetSelection(gint selection_num, int *startChar, int *endChar) {
 	if (selection_num < 0 || (unsigned int) selection_num >= sci->sel.Count())
-		return NULL;
+		return nullptr;
 
 	Sci::Position startByte = sci->sel.Range(selection_num).Start().Position();
 	Sci::Position endByte = sci->sel.Range(selection_num).End().Position();
@@ -601,9 +608,9 @@ gboolean ScintillaGTKAccessible::AddSelection(int startChar, int endChar) {
 	ByteRangeFromCharacterRange(startChar, endChar, startByte, endByte);
 	// use WndProc() to set the selections so it notifies as needed
 	if (n_selections > 1 || ! sci->sel.Empty()) {
-		sci->WndProc(SCI_ADDSELECTION, startByte, endByte);
+		sci->WndProc(Message::AddSelection, startByte, endByte);
 	} else {
-		sci->WndProc(SCI_SETSELECTION, startByte, endByte);
+		sci->WndProc(Message::SetSelection, startByte, endByte);
 	}
 
 	return TRUE;
@@ -615,11 +622,11 @@ gboolean ScintillaGTKAccessible::RemoveSelection(gint selection_num) {
 		return FALSE;
 
 	if (n_selections > 1) {
-		sci->WndProc(SCI_DROPSELECTIONN, selection_num, 0);
+		sci->WndProc(Message::DropSelectionN, selection_num, 0);
 	} else if (sci->sel.Empty()) {
 		return FALSE;
 	} else {
-		sci->WndProc(SCI_CLEARSELECTIONS, 0, 0);
+		sci->WndProc(Message::ClearSelections, 0, 0);
 	}
 
 	return TRUE;
@@ -632,8 +639,8 @@ gboolean ScintillaGTKAccessible::SetSelection(gint selection_num, int startChar,
 	Sci::Position startByte, endByte;
 	ByteRangeFromCharacterRange(startChar, endChar, startByte, endByte);
 
-	sci->WndProc(SCI_SETSELECTIONNSTART, selection_num, startByte);
-	sci->WndProc(SCI_SETSELECTIONNEND, selection_num, endByte);
+	sci->WndProc(Message::SetSelectionNStart, selection_num, startByte);
+	sci->WndProc(Message::SetSelectionNEnd, selection_num, endByte);
 
 	return TRUE;
 }
@@ -666,7 +673,7 @@ void ScintillaGTKAccessible::AtkTextIface::init(::AtkTextIface *iface) {
 void ScintillaGTKAccessible::SetTextContents(const gchar *contents) {
 	// FIXME: it's probably useless to check for READONLY here, SETTEXT probably does it just fine?
 	if (! sci->pdoc->IsReadOnly()) {
-		sci->WndProc(SCI_SETTEXT, 0, (sptr_t) contents);
+		sci->WndProc(Message::SetText, 0, (sptr_t) contents);
 	}
 }
 
@@ -740,7 +747,7 @@ void ScintillaGTKAccessible::PasteText(int charPosition) {
 		Sci::Position bytePosition;
 
 		void Destroyed() override {
-			scia = 0;
+			scia = nullptr;
 		}
 
 		Helper(ScintillaGTKAccessible *scia_, Sci::Position bytePos_) :
@@ -764,9 +771,9 @@ void ScintillaGTKAccessible::PasteText(int charPosition) {
 		}
 
 		static void TextReceivedCallback(GtkClipboard *clipboard, const gchar *text, gpointer data) {
-			Helper *helper = reinterpret_cast<Helper*>(data);
+			Helper *helper = static_cast<Helper*>(data);
 			try {
-				if (helper->scia != 0) {
+				if (helper->scia != nullptr) {
 					helper->TextReceived(clipboard, text);
 				}
 			} catch (...) {}
@@ -797,7 +804,7 @@ bool ScintillaGTKAccessible::Enabled() const {
 // Callbacks
 
 void ScintillaGTKAccessible::UpdateCursor() {
-	Sci::Position pos = sci->WndProc(SCI_GETCURRENTPOS, 0, 0);
+	Sci::Position pos = sci->WndProc(Message::GetCurrentPos, 0, 0);
 	if (old_pos != pos) {
 		int charPosition = CharacterOffsetFromByteOffset(pos);
 		g_signal_emit_by_name(accessible, "text-caret-moved", charPosition);
@@ -864,50 +871,44 @@ void ScintillaGTKAccessible::NotifyReadOnly() {
 #endif
 }
 
-void ScintillaGTKAccessible::SetAccessibility() {
+void ScintillaGTKAccessible::SetAccessibility(bool enabled) {
 	// Called by ScintillaGTK when application has enabled or disabled accessibility
-	character_offsets.resize(0);
-	character_offsets.push_back(0);
+	if (enabled)
+		sci->pdoc->AllocateLineCharacterIndex(LineCharacterIndexType::Utf32);
+	else
+		sci->pdoc->ReleaseLineCharacterIndex(LineCharacterIndexType::Utf32);
 }
 
-void ScintillaGTKAccessible::Notify(GtkWidget *, gint, SCNotification *nt) {
+void ScintillaGTKAccessible::Notify(GtkWidget *, gint, NotificationData *nt) {
 	if (!Enabled())
 		return;
 	switch (nt->nmhdr.code) {
-		case SCN_MODIFIED: {
-			if (nt->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
-				// invalidate character offset cache if applicable
-				const Sci::Line line = sci->pdoc->LineFromPosition(nt->position);
-				if (character_offsets.size() > static_cast<size_t>(line + 1)) {
-					character_offsets.resize(line + 1);
-				}
-			}
-			if (nt->modificationType & SC_MOD_INSERTTEXT) {
+		case Notification::Modified: {
+			if (FlagSet(nt->modificationType, ModificationFlags::InsertText)) {
 				int startChar = CharacterOffsetFromByteOffset(nt->position);
 				int lengthChar = sci->pdoc->CountCharacters(nt->position, nt->position + nt->length);
 				g_signal_emit_by_name(accessible, "text-changed::insert", startChar, lengthChar);
 				UpdateCursor();
 			}
-			if (nt->modificationType & SC_MOD_BEFOREDELETE) {
-				// We cannot compute the deletion length in DELETETEXT as it requires accessing the
-				// buffer, so that the character are still present.  So, we cache the value here,
-				// and use it in DELETETEXT that fires quickly after.
-				deletionLengthChar = sci->pdoc->CountCharacters(nt->position, nt->position + nt->length);
-			}
-			if (nt->modificationType & SC_MOD_DELETETEXT) {
+			if (FlagSet(nt->modificationType, ModificationFlags::BeforeDelete)) {
 				int startChar = CharacterOffsetFromByteOffset(nt->position);
-				g_signal_emit_by_name(accessible, "text-changed::delete", startChar, deletionLengthChar);
+				int lengthChar = sci->pdoc->CountCharacters(nt->position, nt->position + nt->length);
+				g_signal_emit_by_name(accessible, "text-changed::delete", startChar, lengthChar);
+			}
+			if (FlagSet(nt->modificationType, ModificationFlags::DeleteText)) {
 				UpdateCursor();
 			}
-			if (nt->modificationType & SC_MOD_CHANGESTYLE) {
+			if (FlagSet(nt->modificationType, ModificationFlags::ChangeStyle)) {
 				g_signal_emit_by_name(accessible, "text-attributes-changed");
 			}
 		} break;
-		case SCN_UPDATEUI: {
-			if (nt->updated & SC_UPDATE_SELECTION) {
+		case Notification::UpdateUI: {
+			if (FlagSet(nt->updated, Update::Selection)) {
 				UpdateCursor();
 			}
 		} break;
+		default:
+			break;
 	}
 }
 
@@ -928,20 +929,20 @@ void ScintillaGTKAccessible::Notify(GtkWidget *, gint, SCNotification *nt) {
 
 // AtkText
 gchar *ScintillaGTKAccessible::AtkTextIface::GetText(AtkText *text, int start_offset, int end_offset) {
-	WRAPPER_METHOD_BODY(text, GetText(start_offset, end_offset), NULL);
+	WRAPPER_METHOD_BODY(text, GetText(start_offset, end_offset), nullptr);
 }
 gchar *ScintillaGTKAccessible::AtkTextIface::GetTextAfterOffset(AtkText *text, int offset, AtkTextBoundary boundary_type, int *start_offset, int *end_offset) {
-	WRAPPER_METHOD_BODY(text, GetTextAfterOffset(offset, boundary_type, start_offset, end_offset), NULL)
+	WRAPPER_METHOD_BODY(text, GetTextAfterOffset(offset, boundary_type, start_offset, end_offset), nullptr)
 }
 gchar *ScintillaGTKAccessible::AtkTextIface::GetTextBeforeOffset(AtkText *text, int offset, AtkTextBoundary boundary_type, int *start_offset, int *end_offset) {
-	WRAPPER_METHOD_BODY(text, GetTextBeforeOffset(offset, boundary_type, start_offset, end_offset), NULL)
+	WRAPPER_METHOD_BODY(text, GetTextBeforeOffset(offset, boundary_type, start_offset, end_offset), nullptr)
 }
 gchar *ScintillaGTKAccessible::AtkTextIface::GetTextAtOffset(AtkText *text, gint offset, AtkTextBoundary boundary_type, gint *start_offset, gint *end_offset) {
-	WRAPPER_METHOD_BODY(text, GetTextAtOffset(offset, boundary_type, start_offset, end_offset), NULL)
+	WRAPPER_METHOD_BODY(text, GetTextAtOffset(offset, boundary_type, start_offset, end_offset), nullptr)
 }
 #if ATK_CHECK_VERSION(2, 10, 0)
 gchar *ScintillaGTKAccessible::AtkTextIface::GetStringAtOffset(AtkText *text, gint offset, AtkTextGranularity granularity, gint *start_offset, gint *end_offset) {
-	WRAPPER_METHOD_BODY(text, GetStringAtOffset(offset, granularity, start_offset, end_offset), NULL)
+	WRAPPER_METHOD_BODY(text, GetStringAtOffset(offset, granularity, start_offset, end_offset), nullptr)
 }
 #endif
 gunichar ScintillaGTKAccessible::AtkTextIface::GetCharacterAtOffset(AtkText *text, gint offset) {
@@ -963,16 +964,16 @@ void ScintillaGTKAccessible::AtkTextIface::GetCharacterExtents(AtkText *text, gi
 	WRAPPER_METHOD_BODY(text, GetCharacterExtents(offset, x, y, width, height, coords), )
 }
 AtkAttributeSet *ScintillaGTKAccessible::AtkTextIface::GetRunAttributes(AtkText *text, gint offset, gint *start_offset, gint *end_offset) {
-	WRAPPER_METHOD_BODY(text, GetRunAttributes(offset, start_offset, end_offset), NULL)
+	WRAPPER_METHOD_BODY(text, GetRunAttributes(offset, start_offset, end_offset), nullptr)
 }
 AtkAttributeSet *ScintillaGTKAccessible::AtkTextIface::GetDefaultAttributes(AtkText *text) {
-	WRAPPER_METHOD_BODY(text, GetDefaultAttributes(), NULL)
+	WRAPPER_METHOD_BODY(text, GetDefaultAttributes(), nullptr)
 }
 gint ScintillaGTKAccessible::AtkTextIface::GetNSelections(AtkText *text) {
 	WRAPPER_METHOD_BODY(text, GetNSelections(), 0)
 }
 gchar *ScintillaGTKAccessible::AtkTextIface::GetSelection(AtkText *text, gint selection_num, gint *start_pos, gint *end_pos) {
-	WRAPPER_METHOD_BODY(text, GetSelection(selection_num, start_pos, end_pos), NULL)
+	WRAPPER_METHOD_BODY(text, GetSelection(selection_num, start_pos, end_pos), nullptr)
 }
 gboolean ScintillaGTKAccessible::AtkTextIface::AddSelection(AtkText *text, gint start, gint end) {
 	WRAPPER_METHOD_BODY(text, AddSelection(start, end), FALSE)
@@ -1011,37 +1012,37 @@ static GType scintilla_object_accessible_factory_get_type(void);
 
 static void scintilla_object_accessible_init(ScintillaObjectAccessible *accessible);
 static void scintilla_object_accessible_class_init(ScintillaObjectAccessibleClass *klass);
-static gpointer scintilla_object_accessible_parent_class = NULL;
+static gpointer scintilla_object_accessible_parent_class = nullptr;
 
 
 // @p parent_type is only required on GTK 3.2 to 3.6, and only on the first call
 static GType scintilla_object_accessible_get_type(GType parent_type G_GNUC_UNUSED) {
-	static volatile gsize type_id_result = 0;
+	static gsize type_id_result = 0;
 
 	if (g_once_init_enter(&type_id_result)) {
 		GTypeInfo tinfo = {
 			0,															/* class size */
-			(GBaseInitFunc) NULL,										/* base init */
-			(GBaseFinalizeFunc) NULL,									/* base finalize */
+			(GBaseInitFunc) nullptr,										/* base init */
+			(GBaseFinalizeFunc) nullptr,									/* base finalize */
 			(GClassInitFunc) scintilla_object_accessible_class_init,	/* class init */
-			(GClassFinalizeFunc) NULL,									/* class finalize */
-			NULL,														/* class data */
+			(GClassFinalizeFunc) nullptr,									/* class finalize */
+			nullptr,														/* class data */
 			0,															/* instance size */
 			0,															/* nb preallocs */
 			(GInstanceInitFunc) scintilla_object_accessible_init,		/* instance init */
-			NULL														/* value table */
+			nullptr														/* value table */
 		};
 
 		const GInterfaceInfo atk_text_info = {
 			(GInterfaceInitFunc) ScintillaGTKAccessible::AtkTextIface::init,
-			(GInterfaceFinalizeFunc) NULL,
-			NULL
+			(GInterfaceFinalizeFunc) nullptr,
+			nullptr
 		};
 
 		const GInterfaceInfo atk_editable_text_info = {
 			(GInterfaceInitFunc) ScintillaGTKAccessible::AtkEditableTextIface::init,
-			(GInterfaceFinalizeFunc) NULL,
-			NULL
+			(GInterfaceFinalizeFunc) nullptr,
+			nullptr
 		};
 
 #if HAVE_GTK_A11Y_H
@@ -1082,13 +1083,13 @@ static GType scintilla_object_accessible_get_type(GType parent_type G_GNUC_UNUSE
 }
 
 static AtkObject *scintilla_object_accessible_new(GType parent_type, GObject *obj) {
-	g_return_val_if_fail(SCINTILLA_IS_OBJECT(obj), NULL);
+	g_return_val_if_fail(SCINTILLA_IS_OBJECT(obj), nullptr);
 
-	AtkObject *accessible = (AtkObject *) g_object_new(scintilla_object_accessible_get_type(parent_type),
+	AtkObject *accessible = static_cast<AtkObject *>(g_object_new(scintilla_object_accessible_get_type(parent_type),
 #if HAVE_WIDGET_SET_UNSET
 		"widget", obj,
 #endif
-		NULL);
+		nullptr));
 	atk_object_initialize(accessible, obj);
 
 	return accessible;
@@ -1100,14 +1101,14 @@ static AtkObject *scintilla_object_accessible_new(GType parent_type, GObject *ob
 // @p cache pointer to store the AtkObject between repeated calls.  Might or might not be filled.
 // @p widget_parent_class pointer to the widget's parent class (to chain up method calls).
 AtkObject *ScintillaGTKAccessible::WidgetGetAccessibleImpl(GtkWidget *widget, AtkObject **cache, gpointer widget_parent_class G_GNUC_UNUSED) {
-	if (*cache != NULL) {
+	if (*cache != nullptr) {
 		return *cache;
 	}
 
 #if HAVE_GTK_A11Y_H // just instantiate the accessible
 	*cache = scintilla_object_accessible_new(0, G_OBJECT(widget));
 #elif HAVE_GTK_FACTORY // register in the factory and let GTK instantiate
-	static volatile gsize registered = 0;
+	static gsize registered = 0;
 
 	if (g_once_init_enter(&registered)) {
 		// Figure out whether accessibility is enabled by looking at the type of the accessible
@@ -1131,7 +1132,7 @@ AtkObject *ScintillaGTKAccessible::WidgetGetAccessibleImpl(GtkWidget *widget, At
 	if (parent_atk_type == 0) {
 		AtkObject *parent_obj = GTK_WIDGET_CLASS(widget_parent_class)->get_accessible(widget);
 		if (parent_obj) {
-			GType parent_atk_type = G_OBJECT_TYPE(parent_obj);
+			parent_atk_type = G_OBJECT_TYPE(parent_obj);
 
 			// Figure out whether accessibility is enabled by looking at the type of the accessible
 			// object which would be created for the parent type of ScintillaObject.
@@ -1150,10 +1151,10 @@ static AtkStateSet *scintilla_object_accessible_ref_state_set(AtkObject *accessi
 	AtkStateSet *state_set = ATK_OBJECT_CLASS(scintilla_object_accessible_parent_class)->ref_state_set(accessible);
 
 	GtkWidget *widget = gtk_accessible_get_widget(GTK_ACCESSIBLE(accessible));
-	if (widget == NULL) {
+	if (widget == nullptr) {
 		atk_state_set_add_state(state_set, ATK_STATE_DEFUNCT);
 	} else {
-		if (! scintilla_send_message(SCINTILLA_OBJECT(widget), SCI_GETREADONLY, 0, 0))
+		if (! scintilla_send_message(SCINTILLA_OBJECT(widget), static_cast<int>(Message::GetReadOnly), 0, 0))
 			atk_state_set_add_state(state_set, ATK_STATE_EDITABLE);
 #if ATK_CHECK_VERSION(2, 16, 0)
 		else
@@ -1170,11 +1171,11 @@ static AtkStateSet *scintilla_object_accessible_ref_state_set(AtkObject *accessi
 
 static void scintilla_object_accessible_widget_set(GtkAccessible *accessible) {
 	GtkWidget *widget = gtk_accessible_get_widget(accessible);
-	if (widget == NULL)
+	if (widget == nullptr)
 		return;
 
 	ScintillaObjectAccessiblePrivate *priv = SCINTILLA_OBJECT_ACCESSIBLE_GET_PRIVATE(accessible);
-	if (priv->pscin != 0)
+	if (priv->pscin)
 		delete priv->pscin;
 	priv->pscin = new ScintillaGTKAccessible(accessible, widget);
 }
@@ -1182,7 +1183,7 @@ static void scintilla_object_accessible_widget_set(GtkAccessible *accessible) {
 #if HAVE_WIDGET_SET_UNSET
 static void scintilla_object_accessible_widget_unset(GtkAccessible *accessible) {
 	GtkWidget *widget = gtk_accessible_get_widget(accessible);
-	if (widget == NULL)
+	if (widget == nullptr)
 		return;
 
 	ScintillaObjectAccessiblePrivate *priv = SCINTILLA_OBJECT_ACCESSIBLE_GET_PRIVATE(accessible);
@@ -1206,7 +1207,7 @@ static void scintilla_object_accessible_finalize(GObject *object) {
 
 	if (priv->pscin) {
 		delete priv->pscin;
-		priv->pscin = 0;
+		priv->pscin = nullptr;
 	}
 
 	G_OBJECT_CLASS(scintilla_object_accessible_parent_class)->finalize(object);
@@ -1235,7 +1236,7 @@ static void scintilla_object_accessible_class_init(ScintillaObjectAccessibleClas
 static void scintilla_object_accessible_init(ScintillaObjectAccessible *accessible) {
 	ScintillaObjectAccessiblePrivate *priv = SCINTILLA_OBJECT_ACCESSIBLE_GET_PRIVATE(accessible);
 
-	priv->pscin = 0;
+	priv->pscin = nullptr;
 }
 
 #if HAVE_GTK_FACTORY

@@ -5,77 +5,65 @@
  *
  */
 
-#ifndef _QUARTZ_TEXT_STYLE_H
-#define _QUARTZ_TEXT_STYLE_H
+#ifndef QUARTZTEXTSTYLE_H
+#define QUARTZTEXTSTYLE_H
 
 #include "QuartzTextStyleAttribute.h"
 
-class QuartzTextStyle
-{
+class QuartzTextStyle {
 public:
-	QuartzTextStyle()
-	{
+	QuartzTextStyle() {
 		fontRef = NULL;
 		styleDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 2,
-		        &kCFTypeDictionaryKeyCallBacks,
-		        &kCFTypeDictionaryValueCallBacks);
+						      &kCFTypeDictionaryKeyCallBacks,
+						      &kCFTypeDictionaryValueCallBacks);
 
-		characterSet = 0;
+		characterSet = Scintilla::CharacterSet::Ansi;
 	}
 
-	QuartzTextStyle(const QuartzTextStyle &other)
-	{
+	QuartzTextStyle(const QuartzTextStyle *other) {
 		// Does not copy font colour attribute
-		fontRef = static_cast<CTFontRef>(CFRetain(other.fontRef));
+		fontRef = static_cast<CTFontRef>(CFRetain(other->fontRef));
 		styleDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 2,
-		        &kCFTypeDictionaryKeyCallBacks,
-		        &kCFTypeDictionaryValueCallBacks);
+						      &kCFTypeDictionaryKeyCallBacks,
+						      &kCFTypeDictionaryValueCallBacks);
 		CFDictionaryAddValue(styleDict, kCTFontAttributeName, fontRef);
-		characterSet = other.characterSet;
+		characterSet = other->characterSet;
 	}
 
-	~QuartzTextStyle()
-	{
-		if (styleDict != NULL)
-		{
+	~QuartzTextStyle() {
+		if (styleDict != NULL) {
 			CFRelease(styleDict);
 			styleDict = NULL;
 		}
 
-		if (fontRef)
-		{
+		if (fontRef) {
 			CFRelease(fontRef);
 			fontRef = NULL;
 		}
 	}
 
-	CFMutableDictionaryRef getCTStyle() const
-	{
+	CFMutableDictionaryRef getCTStyle() const {
 		return styleDict;
 	}
 
-	void setCTStyleColor(CGColor *inColor)
-	{
-		CFDictionarySetValue(styleDict, kCTForegroundColorAttributeName, inColor);
+	void setCTStyleColour(CGColor *inColour) {
+		CFDictionarySetValue(styleDict, kCTForegroundColorAttributeName, inColour);
 	}
 
-	float getAscent() const
-	{
+	float getAscent() const {
 		return static_cast<float>(::CTFontGetAscent(fontRef));
 	}
 
-	float getDescent() const
-	{
+	float getDescent() const {
 		return static_cast<float>(::CTFontGetDescent(fontRef));
 	}
 
-	float getLeading() const
-	{
+	float getLeading() const {
 		return static_cast<float>(::CTFontGetLeading(fontRef));
 	}
 
-	void setFontRef(CTFontRef inRef, int characterSet_)
-	{
+	void setFontRef(CTFontRef inRef, Scintilla::CharacterSet characterSet_) {
 		fontRef = inRef;
 		characterSet = characterSet_;
 
@@ -83,26 +71,24 @@ public:
 			CFRelease(styleDict);
 
 		styleDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 2,
-		        &kCFTypeDictionaryKeyCallBacks,
-		        &kCFTypeDictionaryValueCallBacks);
+						      &kCFTypeDictionaryKeyCallBacks,
+						      &kCFTypeDictionaryValueCallBacks);
 
 		CFDictionaryAddValue(styleDict, kCTFontAttributeName, fontRef);
 	}
 
-	CTFontRef getFontRef()
-	{
+	CTFontRef getFontRef() const noexcept {
 		return fontRef;
 	}
 
-	int getCharacterSet()
-	{
+	Scintilla::CharacterSet getCharacterSet() const noexcept {
 		return characterSet;
 	}
 
 private:
 	CFMutableDictionaryRef styleDict;
 	CTFontRef fontRef;
-	int characterSet;
+	Scintilla::CharacterSet characterSet;
 };
 
 #endif

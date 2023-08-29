@@ -8,67 +8,59 @@
  *
  */
 
-#ifndef _QUARTZ_TEXT_LAYOUT_H
-#define _QUARTZ_TEXT_LAYOUT_H
+#ifndef QUARTZTEXTLAYOUT_H
+#define QUARTZTEXTLAYOUT_H
 
 #include <Cocoa/Cocoa.h>
 
 #include "QuartzTextStyle.h"
 
 
-class QuartzTextLayout
-{
+class QuartzTextLayout {
 public:
-    /** Create a text layout for drawing on the specified context. */
-    explicit QuartzTextLayout( CGContextRef context )
-    {
-		mString = NULL;
-		mLine = NULL;
-		stringLength = 0;
-        setContext(context);
-    }
+	/** Create a text layout for drawing. */
+	QuartzTextLayout(std::string_view sv, CFStringEncoding encoding, const QuartzTextStyle *r) {
+		encodingUsed = encoding;
+		const UInt8 *puiBuffer = reinterpret_cast<const UInt8 *>(sv.data());
+		CFStringRef str = CFStringCreateWithBytes(NULL, puiBuffer, sv.length(), encodingUsed, false);
+		if (!str) {
+			// Failed to decode bytes into string with given encoding so try
+			// MacRoman which should accept any byte.
+			encodingUsed = kCFStringEncodingMacRoman;
+			str = CFStringCreateWithBytes(NULL, puiBuffer, sv.length(), encodingUsed, false);
+		}
+		if (!str) {
+			return;
+		}
 
-    ~QuartzTextLayout()
-    {
-		if ( mString != NULL )
-		{
+		stringLength = CFStringGetLength(str);
+
+		CFMutableDictionaryRef stringAttribs = r->getCTStyle();
+
+		mString = ::CFAttributedStringCreate(NULL, str, stringAttribs);
+
+		mLine = ::CTLineCreateWithAttributedString(mString);
+
+		CFRelease(str);
+	}
+
+	~QuartzTextLayout() {
+		if (mString) {
 			CFRelease(mString);
 			mString = NULL;
 		}
-		if ( mLine != NULL )
-		{
+		if (mLine) {
 			CFRelease(mLine);
 			mLine = NULL;
 		}
-    }
+	}
 
-    inline void setText( const UInt8* buffer, size_t byteLength, CFStringEncoding encoding, const QuartzTextStyle& r )
-    {
-		CFStringRef str = CFStringCreateWithBytes( NULL, buffer, byteLength, encoding, false );
-        if (!str)
-            return;
-
-	        stringLength = CFStringGetLength(str);
-
-		CFMutableDictionaryRef stringAttribs = r.getCTStyle();
-
-		if (mString != NULL)
-			CFRelease(mString);
-		mString = ::CFAttributedStringCreate(NULL, str, stringAttribs);
-
-		if (mLine != NULL)
-			CFRelease(mLine);
-		mLine = ::CTLineCreateWithAttributedString(mString);
-
-		CFRelease( str );
-    }
-
-    /** Draw the text layout into the current CGContext at the specified position.
-    * @param x The x axis position to draw the baseline in the current CGContext.
-    * @param y The y axis position to draw the baseline in the current CGContext. */
-    void draw( float x, float y )
-    {
-		if (mLine == NULL)
+	/** Draw the text layout into a CGContext at the specified position.
+	* @param gc The CGContext in which to draw the text.
+	* @param x The x axis position to draw the baseline in the current CGContext.
+	* @param y The y axis position to draw the baseline in the current CGContext. */
+	void draw(CGContextRef gc, double x, double y) {
+		if (!mLine)
 			return;
 
 		::CGContextSetTextMatrix(gc, CGAffineTransformMakeScale(1.0, -1.0));
@@ -78,34 +70,32 @@ public:
 
 		// And finally, draw!
 		::CTLineDraw(mLine, gc);
-    }
+	}
 
-	float MeasureStringWidth()
-	{
+	float MeasureStringWidth() {
 		if (mLine == NULL)
 			return 0.0f;
 
 		return static_cast<float>(::CTLineGetTypographicBounds(mLine, NULL, NULL, NULL));
 	}
 
-    CTLineRef getCTLine() {
-        return mLine;
-    }
+	CTLineRef getCTLine() {
+		return mLine;
+	}
 
-    CFIndex getStringLength() {
-	    return stringLength;
-    }
+	CFIndex getStringLength() {
+		return stringLength;
+	}
 
-    inline void setContext (CGContextRef context)
-    {
-        gc = context;
-    }
+	CFStringEncoding getEncoding() {
+		return encodingUsed;
+	}
 
 private:
-    CGContextRef gc;
-	CFAttributedStringRef mString;
-	CTLineRef mLine;
-	CFIndex stringLength;
+	CFAttributedStringRef mString = NULL;
+	CTLineRef mLine = NULL;
+	CFIndex stringLength = 0;
+	CFStringEncoding encodingUsed = kCFStringEncodingMacRoman;
 };
 
 #endif
