@@ -32,6 +32,9 @@
 using namespace Scintilla;
 using namespace Scintilla::Internal;
 
+LineMarker::LineMarker() {
+}
+
 LineMarker::LineMarker(const LineMarker &other) {
 	// Defined to avoid pxpm and image being blindly copied, not as a complete copy constructor.
 	markType = other.markType;

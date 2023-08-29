@@ -590,7 +590,7 @@ class CaseConverter final : public ICaseConverter {
 		int character = 0;
 		ConversionString conversion;
 		// Empty case: NUL -> "".
-		CharacterConversion() noexcept = default;
+		CharacterConversion();// noexcept = default;
 		CharacterConversion(int character_, std::string_view conversion_) noexcept : character(character_) {
 			assert(conversion_.length() <= maxConversionLength);
 			try {

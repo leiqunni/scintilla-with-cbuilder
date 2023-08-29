@@ -652,7 +652,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 		return Point(static_cast<XYPOSITION>(wParam) - vs.ExternalMarginWidth(), static_cast<XYPOSITION>(lParam));
 	}
 
-	static constexpr std::optional<FoldLevel> OptionalFoldLevel(Scintilla::sptr_t lParam) {
+	static std::optional<FoldLevel> OptionalFoldLevel(Scintilla::sptr_t lParam) {
 		if (lParam >= 0) {
 			return static_cast<FoldLevel>(lParam);
 		}
