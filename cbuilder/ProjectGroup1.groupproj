@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{3D297068-069F-4967-9ED7-D16B07D8493A}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Scintilla.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Sample.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Scintilla">
+        <MSBuild Projects="Scintilla.cbproj"/>
+    </Target>
+    <Target Name="Scintilla:Clean">
+        <MSBuild Projects="Scintilla.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Scintilla:Make">
+        <MSBuild Projects="Scintilla.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Sample">
+        <MSBuild Projects="Sample.cbproj"/>
+    </Target>
+    <Target Name="Sample:Clean">
+        <MSBuild Projects="Sample.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Sample:Make">
+        <MSBuild Projects="Sample.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Scintilla;Sample"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Scintilla:Clean;Sample:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Scintilla:Make;Sample:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
