@@ -1,12 +1,12 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{3D297068-069F-4967-9ED7-D16B07D8493A}</ProjectGuid>
+        <ProjectGuid>{4503B2D3-D92B-4B20-9AAA-32ACF8E5F13B}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
         <Projects Include="Scintilla.cbproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Sample.cbproj">
+        <Projects Include="sample\sample.cbproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -26,23 +26,23 @@
     <Target Name="Scintilla:Make">
         <MSBuild Projects="Scintilla.cbproj" Targets="Make"/>
     </Target>
-    <Target Name="Sample">
-        <MSBuild Projects="Sample.cbproj"/>
+    <Target Name="sample">
+        <MSBuild Projects="sample\sample.cbproj"/>
     </Target>
-    <Target Name="Sample:Clean">
-        <MSBuild Projects="Sample.cbproj" Targets="Clean"/>
+    <Target Name="sample:Clean">
+        <MSBuild Projects="sample\sample.cbproj" Targets="Clean"/>
     </Target>
-    <Target Name="Sample:Make">
-        <MSBuild Projects="Sample.cbproj" Targets="Make"/>
+    <Target Name="sample:Make">
+        <MSBuild Projects="sample\sample.cbproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Scintilla;Sample"/>
+        <CallTarget Targets="Scintilla;sample"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Scintilla:Clean;Sample:Clean"/>
+        <CallTarget Targets="Scintilla:Clean;sample:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Scintilla:Make;Sample:Make"/>
+        <CallTarget Targets="Scintilla:Make;sample:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

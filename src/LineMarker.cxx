@@ -5,6 +5,7 @@
 // Copyright 1998-2011 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#include <cstdint>
 #include <cstring>
 #include <cmath>
 
@@ -32,7 +33,7 @@
 using namespace Scintilla;
 using namespace Scintilla::Internal;
 
-LineMarker::LineMarker() {
+LineMarker::LineMarker() noexcept {
 }
 
 LineMarker::LineMarker(const LineMarker &other) {

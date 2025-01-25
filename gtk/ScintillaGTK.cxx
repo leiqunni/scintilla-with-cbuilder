@@ -673,6 +673,7 @@ void ScintillaGTK::Init() {
 
 	/* create pre-edit window */
 	wPreedit = gtk_window_new(GTK_WINDOW_POPUP);
+	gtk_window_set_type_hint(GTK_WINDOW(PWidget(wPreedit)), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
 	wPreeditDraw = gtk_drawing_area_new();
 	GtkWidget *predrw = PWidget(wPreeditDraw);      // No code inside the G_OBJECT macro
 #if GTK_CHECK_VERSION(3,0,0)
@@ -703,10 +704,11 @@ void ScintillaGTK::Init() {
 		timers[tr].reason = static_cast<TickReason>(tr);
 		timers[tr].scintilla = this;
 	}
-	vs.indicators[SC_INDICATOR_UNKNOWN] = Indicator(IndicatorStyle::Hidden, ColourRGBA(0, 0, 0xff));
-	vs.indicators[SC_INDICATOR_INPUT] = Indicator(IndicatorStyle::Dots, ColourRGBA(0, 0, 0xff));
-	vs.indicators[SC_INDICATOR_CONVERTED] = Indicator(IndicatorStyle::CompositionThick, ColourRGBA(0, 0, 0xff));
-	vs.indicators[SC_INDICATOR_TARGET] = Indicator(IndicatorStyle::StraightBox, ColourRGBA(0, 0, 0xff));
+
+	vs.indicators[SC_INDICATOR_UNKNOWN] = Indicator(IndicatorStyle::Hidden, colourIME);
+	vs.indicators[SC_INDICATOR_INPUT] = Indicator(IndicatorStyle::Dots, colourIME);
+	vs.indicators[SC_INDICATOR_CONVERTED] = Indicator(IndicatorStyle::CompositionThick, colourIME);
+	vs.indicators[SC_INDICATOR_TARGET] = Indicator(IndicatorStyle::StraightBox, colourIME);
 
 	fontOptionsPrevious = FontOptions(PWidget(wText));
 }
@@ -1406,6 +1408,7 @@ void ScintillaGTK::Paste() {
 void ScintillaGTK::CreateCallTipWindow(PRectangle rc) {
 	if (!ct.wCallTip.Created()) {
 		ct.wCallTip = gtk_window_new(GTK_WINDOW_POPUP);
+		gtk_window_set_type_hint(GTK_WINDOW(PWidget(ct.wCallTip)), GDK_WINDOW_TYPE_HINT_TOOLTIP);
 		ct.wDraw = gtk_drawing_area_new();
 		GtkWidget *widcdrw = PWidget(ct.wDraw);	//	// No code inside the G_OBJECT macro
 		gtk_container_add(GTK_CONTAINER(PWidget(ct.wCallTip)), widcdrw);
@@ -1499,8 +1502,8 @@ void ScintillaGTK::PrimaryClearSelection(GtkClipboard *clip, gpointer pSci) {
 void ScintillaGTK::ClaimSelection() {
 	// X Windows has a 'primary selection' as well as the clipboard.
 	// Whenever the user selects some text, we become the primary selection
-	ClearPrimarySelection();
 	if (!sel.Empty()) {
+		ClearPrimarySelection();
 		if (gtk_clipboard_set_with_data(
 			gtk_clipboard_get(GDK_SELECTION_PRIMARY),
 			clipboardCopyTargets, nClipboardCopyTargets,
@@ -2376,8 +2379,7 @@ void ScintillaGTK::MoveImeCarets(Sci::Position pos) {
 	// Move carets relatively by bytes
 	for (size_t r=0; r<sel.Count(); r++) {
 		const Sci::Position positionInsert = sel.Range(r).Start().Position();
-		sel.Range(r).caret.SetPosition(positionInsert + pos);
-		sel.Range(r).anchor.SetPosition(positionInsert + pos);
+		sel.Range(r) = SelectionRange(positionInsert + pos);
 	}
 }
 
