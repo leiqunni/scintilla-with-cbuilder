@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <Transactions>
-    <Transaction>2023/09/12 21:39:24.375,=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
-    <Transaction>2023/09/12 21:39:24.522,=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Unit1.cpp</Transaction>
-    <Transaction>2023/09/12 21:39:54.097,C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\SamplePCH1.h=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
-    <Transaction>2023/09/12 21:39:54.103,C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Sample.cbproj=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Project1.cbproj</Transaction>
-    <Transaction>2023/09/12 21:40:48.681,C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\Unit1.dfm=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
-    <Transaction>2023/09/12 21:40:48.681,C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\Unit1.cpp=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Unit1.cpp</Transaction>
-    <Transaction>2023/09/12 21:40:48.681,C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\Unit1.h=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Unit1.h</Transaction>
-    <Transaction>2023/09/12 21:40:55.715,C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\SamplePCH1.h=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\SamplePCH1.h</Transaction>
-    <Transaction>2023/09/12 21:41:02.757,C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\Sample.cbproj=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Sample.cbproj</Transaction>
+	<Transactions>
+    <Transaction>2023/09/12 21:39:24.000.522,=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>2023/09/12 21:39:24.000.375,=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>2023/09/12 21:39:54.000.097,C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Project1PCH1.h=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\SamplePCH1.h</Transaction>
+    <Transaction>2023/09/12 21:39:54.000.103,C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Project1.cbproj=C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Sample.cbproj</Transaction>
+    <Transaction>2023/09/12 21:40:48.000.681,C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Unit1.cpp=C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\Unit1.cpp</Transaction>
+    <Transaction>2023/09/12 21:40:48.000.681,C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\Unit1.dfm</Transaction>
+    <Transaction>2023/09/12 21:40:48.000.681,C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Unit1.h=C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\Unit1.h</Transaction>
+    <Transaction>2023/09/12 21:40:55.000.715,C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\SamplePCH1.h=C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\SamplePCH1.h</Transaction>
+    <Transaction>2023/09/12 21:41:02.000.757,C:\Users\leiqunni\Documents\Embarcadero\Studio\Projects\Sample.cbproj=C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\Sample.cbproj</Transaction>
   </Transactions>
 </BorlandProject>
