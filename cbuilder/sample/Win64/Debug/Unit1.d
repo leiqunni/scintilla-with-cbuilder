@@ -1,5 +1,5 @@
 .\Win64\Debug\Unit1.o: \
-  C:\Users\leiqunni\Downloads\scintilla554\scintilla\cbuilder\sample\samplePCH1.h \
+  C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\sample\samplePCH1.h \
   c:\program\ files\ (x86)\embarcadero\studio\23.0\include\windows\vcl\vcl.h \
   c:\program\ files\ (x86)\embarcadero\studio\23.0\include\windows\vcl\basepch0.h \
   c:\program\ files\ (x86)\embarcadero\studio\23.0\include\windows\rtl\System.hpp \
@@ -347,4 +347,4 @@
   c:\program\ files\ (x86)\embarcadero\studio\23.0\include\windows\rtl\System.MaskUtils.hpp \
   c:\program\ files\ (x86)\embarcadero\studio\23.0\include\windows\vcl\Vcl.ListActns.hpp \
   Unit1.cpp \
-  C:\Users\leiqunni\Downloads\scintilla554\scintilla\cbuilder\sample/Unit1.h
+  C:\Users\leiqunni\Documents\GitHub\scintilla-with-cbuilder\cbuilder\sample/Unit1.h
